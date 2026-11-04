@@ -4,6 +4,15 @@ A modern startup-style full-stack SaaS platform connecting households with profe
 
 ---
 
+## 🌐 Live Production Deployments
+
+* **Live Web App (Netlify):** **[https://topstaps-9634.netlify.app](https://topstaps-9634.netlify.app)**
+* **Live API Server (Render):** **[https://topstaps-api.onrender.com](https://topstaps-api.onrender.com)**
+* **Live Swagger API Docs:** **[https://topstaps-api.onrender.com/docs](https://topstaps-api.onrender.com/docs)**
+* **GitHub Repository:** **[https://github.com/keyurgovanitops/tops-and-taps](https://github.com/keyurgovanitops/tops-and-taps)**
+
+---
+
 ## 🚀 Quick Start Instructions
 
 ### 1. Launch Backend (FastAPI)

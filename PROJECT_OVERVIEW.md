@@ -90,10 +90,14 @@ The complete end-to-end test suite (`backend/tests/test_e2e_platform.py`) valida
 
 ---
 
-## ⚡ Quick Test & Access Matrix
+## ⚡ Live Production & Quick Access Matrix
 
-* **Frontend Web App:** [http://127.0.0.1:5173/](http://127.0.0.1:5173/)
-* **Backend Swagger Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* 🌐 **Live Production Frontend (Netlify):** **[https://topstaps-9634.netlify.app](https://topstaps-9634.netlify.app)**
+* 🚀 **Live Production Backend API (Render):** **[https://topstaps-api.onrender.com](https://topstaps-api.onrender.com)**
+* 📖 **Live Interactive Swagger Docs:** **[https://topstaps-api.onrender.com/docs](https://topstaps-api.onrender.com/docs)**
+* 📦 **GitHub Repository:** **[https://github.com/keyurgovanitops/tops-and-taps](https://github.com/keyurgovanitops/tops-and-taps)**
+* 💻 **Local Dev Frontend:** [http://127.0.0.1:5173/](http://127.0.0.1:5173/)
+* 💻 **Local Dev Backend Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 | User Role | Pre-Seeded Email | Password | Primary Workflow to Test |
 | :--- | :--- | :--- | :--- |

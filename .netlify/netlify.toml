@@ -1,0 +1,42 @@
+redirectsOrigin = "config"
+plugins = []
+headers = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\Users\\hp\\Desktop\\vibe coding\\frontend\\dist"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm run build"
+base = "C:\\Users\\hp\\Desktop\\vibe coding\\frontend"
+
+[build.environment]
+VITE_API_URL = "https://topstaps-api.onrender.com"
+VITE_RAZORPAY_KEY_ID = "rzp_test_us_TX9wuOHHTItsL8"
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
