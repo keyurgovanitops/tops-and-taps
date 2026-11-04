@@ -6,7 +6,7 @@ import {
   Search, Shield, Star, CheckCircle2, ArrowRight, Zap, Droplets,
   Wind, Sparkles, Paintbrush, Hammer, Tv, ShieldAlert, Award, Clock,
   MapPin, PhoneCall, Check, TrendingUp, Users, ChevronRight, Calculator,
-  Lock, RefreshCw
+  Lock, RefreshCw, Wrench, ShieldCheck
 } from 'lucide-react';
 import AuthModal from '../components/AuthModal';
 
