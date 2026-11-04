@@ -53,3 +53,4 @@ def upload_media_file(file_bytes: bytes, filename: str, folder: str = "homeserve
         f.write(file_bytes)
 
     return f"/uploads/{safe_filename}"
+

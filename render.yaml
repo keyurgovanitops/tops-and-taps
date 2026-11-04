@@ -16,3 +16,4 @@ services:
         value: "dzwsbmb6"
       - key: CLOUDINARY_API_KEY
         value: "513286465541511"
+
