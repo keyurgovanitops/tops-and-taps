@@ -52,12 +52,11 @@ def get_provider_profile(current_user: User = Depends(require_provider), db: Ses
 @router.post("/upload-document")
 async def upload_kyc_document(file: UploadFile = File(...), current_user: User = Depends(require_provider), db: Session = Depends(get_db)):
     prov = current_user.provider_profile
-    filename = f"kyc_{prov.id}_{uuid.uuid4().hex[:8]}_{file.filename}"
-    file_path = os.path.join(UPLOAD_DIR, filename)
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
+    content = await file.read()
+    from backend.app.storage import upload_media_file
+    image_url = upload_media_file(content, file.filename, folder="provider_kyc")
     
-    prov.id_proof_url = f"/uploads/{filename}"
+    prov.id_proof_url = image_url
     prov.verification_status = "pending"
     db.commit()
 

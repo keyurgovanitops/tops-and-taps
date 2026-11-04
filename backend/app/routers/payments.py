@@ -76,7 +76,12 @@ def create_razorpay_order(
 
     razorpay_order_id = None
 
-    if razorpay_client and RAZORPAY_KEY_ID and not RAZORPAY_KEY_ID.startswith("rzp_test_TOPSTaps"):
+    if (
+        razorpay_client
+        and RAZORPAY_KEY_ID
+        and RAZORPAY_KEY_SECRET
+        and not RAZORPAY_KEY_ID.startswith("rzp_test_TOPSTaps")
+    ):
         try:
             rzp_order = razorpay_client.order.create(data=order_payload)
             razorpay_order_id = rzp_order.get("id")
@@ -122,6 +127,7 @@ def verify_razorpay_payment(
     if (
         razorpay_client
         and RAZORPAY_KEY_ID
+        and RAZORPAY_KEY_SECRET
         and not RAZORPAY_KEY_ID.startswith("rzp_test_TOPSTaps")
     ):
         try:

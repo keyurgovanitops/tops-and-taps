@@ -92,14 +92,13 @@ async def upload_job_image(
     if not b:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    filename = f"job_{booking_id}_{image_type}_{uuid.uuid4().hex[:6]}_{file.filename}"
-    file_path = os.path.join(UPLOAD_DIR, filename)
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
+    content = await file.read()
+    from backend.app.storage import upload_media_file
+    image_url = upload_media_file(content, file.filename, folder="technician_work")
 
     new_img = BookingImage(
         booking_id=booking_id,
-        image_url=f"/uploads/{filename}",
+        image_url=image_url,
         image_type=image_type
     )
     db.add(new_img)
