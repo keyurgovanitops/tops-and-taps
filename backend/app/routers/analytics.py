@@ -89,3 +89,42 @@ def get_provider_analytics(current_user: User = Depends(require_provider), db: S
         "total_reviews": prov.total_reviews
     }
 
+
+@router.get("/admin/export-csv")
+def export_admin_csv(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Exports all platform bookings, transactions, and commission cuts in standard CSV format"""
+    import csv, io
+    from fastapi.responses import Response
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Booking Code", "Service Name", "Category", "Customer Name", "Customer Phone",
+        "Provider Business", "Booking Date", "Time Slot", "Status", "Base Price",
+        "Discount", "Final Amount", "Platform Commission (15%)", "Provider Net", "Payment Status"
+    ])
+
+    bookings = db.query(Booking).order_by(Booking.id.desc()).all()
+    for b in bookings:
+        cust_name = b.customer.user.full_name if b.customer and b.customer.user else "Customer"
+        cust_phone = b.customer.user.phone if b.customer and b.customer.user else ""
+        prov_name = b.provider.business_name if b.provider else "Unassigned"
+        srv_name = b.service.name if b.service else "Service"
+        cat_name = b.service.category.name if b.service and b.service.category else ""
+        pay_status = b.payment.status if b.payment else "Unpaid"
+
+        writer.writerow([
+            b.booking_code, srv_name, cat_name, cust_name, cust_phone,
+            prov_name, b.booking_date, b.time_slot, b.status, b.total_amount,
+            b.discount_amount, b.final_amount, b.commission_amount,
+            round(b.final_amount - b.commission_amount, 2), pay_status
+        ])
+
+    csv_data = output.getvalue()
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=topstaps_platform_report.csv"}
+    )
+
+

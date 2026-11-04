@@ -81,3 +81,45 @@ def delete_customer_address(address_id: int, current_user: User = Depends(requir
     db.commit()
     return {"message": "Address deleted successfully"}
 
+
+@router.get("/all")
+def list_all_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin endpoint: lists all customers across the platform"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Super Admin privilege required")
+    
+    customers = db.query(Customer).all()
+    results = []
+    for c in customers:
+        results.append({
+            "id": c.id,
+            "user_id": c.user_id,
+            "full_name": c.user.full_name if c.user else "Customer",
+            "email": c.user.email if c.user else "",
+            "phone": c.user.phone if c.user else "",
+            "is_active": c.user.is_active if c.user else True,
+            "total_bookings": len(c.bookings),
+            "total_addresses": len(c.addresses),
+            "created_at": c.user.created_at.isoformat() if c.user and c.user.created_at else None
+        })
+    return results
+
+
+@router.put("/{user_id}/status")
+def toggle_customer_status(user_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Admin endpoint: toggles customer active / deactivated status"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Super Admin privilege required")
+    
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    target_user.is_active = not target_user.is_active
+    db.commit()
+    return {
+        "message": f"User status updated to {'Active' if target_user.is_active else 'Deactivated'}",
+        "is_active": target_user.is_active
+    }
+
+

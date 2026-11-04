@@ -48,7 +48,7 @@ def create_booking(req: BookingCreate, current_user: User = Depends(require_cust
             Booking.provider_id == provider.id,
             Booking.booking_date == req.booking_date,
             Booking.time_slot == req.time_slot,
-            Booking.status.in_(["Confirmed", "Provider Assigned", "In Progress"])
+            Booking.status.in_(["Pending", "Confirmed", "Provider Assigned", "In Progress"])
         ).first()
         if existing_booking:
             raise HTTPException(

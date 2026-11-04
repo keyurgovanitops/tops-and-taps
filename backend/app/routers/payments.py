@@ -339,7 +339,7 @@ def validate_coupon(req: CouponValidate, db: Session = Depends(get_db)):
 
 @router.get("/coupons")
 def list_active_coupons(db: Session = Depends(get_db)):
-    coupons = db.query(Coupon).filter(Coupon.is_active == True).all()
+    coupons = db.query(Coupon).all()
     return [
         {
             "id": c.id,
@@ -347,6 +347,62 @@ def list_active_coupons(db: Session = Depends(get_db)):
             "discount_type": c.discount_type,
             "discount_value": c.discount_value,
             "min_booking_amount": c.min_booking_amount,
+            "is_active": c.is_active,
         }
         for c in coupons
     ]
+
+
+@router.post("/coupons")
+def create_coupon(
+    data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin endpoint: create new promotional coupon"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Super Admin privilege required")
+    
+    code = data.get("code", "").strip().upper()
+    if not code:
+        raise HTTPException(status_code=400, detail="Coupon code is required")
+    
+    existing = db.query(Coupon).filter(Coupon.code == code).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Coupon with this code already exists")
+    
+    new_coupon = Coupon(
+        code=code,
+        discount_type=data.get("discount_type", "flat"),
+        discount_value=float(data.get("discount_value", 50.0)),
+        min_booking_amount=float(data.get("min_booking_amount", 299.0)),
+        is_active=True
+    )
+    db.add(new_coupon)
+    db.commit()
+    db.refresh(new_coupon)
+    return {
+        "message": "Coupon created successfully",
+        "id": new_coupon.id,
+        "code": new_coupon.code,
+        "discount_value": new_coupon.discount_value
+    }
+
+
+@router.delete("/coupons/{coupon_id}")
+def delete_coupon(
+    coupon_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin endpoint: toggle or remove coupon"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Super Admin privilege required")
+    
+    c = db.query(Coupon).filter(Coupon.id == coupon_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    c.is_active = not c.is_active
+    db.commit()
+    return {"message": f"Coupon {'activated' if c.is_active else 'deactivated'}", "is_active": c.is_active}
+

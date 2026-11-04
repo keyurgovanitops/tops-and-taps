@@ -41,7 +41,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <TourProvider>
-          <div className="flex flex-col min-h-screen bg-slate-50 font-sans selection:bg-blue-600 selection:text-white">
+          <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white">
             <Navbar />
             <main className="flex-1">
               <Routes>

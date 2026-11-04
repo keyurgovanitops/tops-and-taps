@@ -187,6 +187,18 @@ export const TourProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [initialSnapshot, setInitialSnapshot] = useState(null);
 
+  // Auto-trigger guided tour for first-time visitors
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('topstaps_tour_seen');
+    if (!hasSeen && location.pathname === '/') {
+      const timer = setTimeout(() => {
+        startTour(TOURS.FULL_PLATFORM);
+        localStorage.setItem('topstaps_tour_seen', 'true');
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const startTour = async (tourKey = TOURS.FULL_PLATFORM) => {
     const tour = TOUR_STEPS[tourKey];
     if (!tour || tour.length === 0) return;
@@ -215,6 +227,7 @@ export const TourProvider = ({ children }) => {
   };
 
   const endTour = () => {
+    localStorage.setItem('topstaps_tour_seen', 'true');
     setIsOpen(false);
     setActiveTour(null);
     setCurrentStepIndex(0);
