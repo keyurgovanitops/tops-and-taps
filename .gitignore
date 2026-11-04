@@ -1,0 +1,20 @@
+# Environments
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+*.log
+.pytest_cache/
+
+# Databases
+*.db
+*.sqlite3
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+

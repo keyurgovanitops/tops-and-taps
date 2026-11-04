@@ -1,0 +1,522 @@
+﻿PROJECT AT A GLANCE
+TECHNOLOGY SNAPSHOT
+React.js  •  Tailwind CSS  •  Python FastAPI  •  MySQL  •  SQLAlchemy  •  JWT  •  Postman  •  Playwright  •  Git & GitHub  •  Vercel / Netlify + Render  •  Razorpay Test Mode  •  Cloudinary
+1. Project Objective
+Develop a complete, responsive, secure, and production-ready SaaS-based Home Services Booking Platform using AI-powered Vibe Coding tools.
+The platform will connect customers with professional home service providers such as electricians, plumbers, AC technicians, cleaners, painters, carpenters, and appliance repair professionals.
+The application should allow customers to discover services, book appointments, track service requests, make payments, and provide reviews. Service providers should be able to manage their services, availability, bookings, and earnings.
+The trainer must use AI tools such as ChatGPT, Claude, Cursor, AntiGravity, or similar tools to plan, design, develop, test, debug, and deploy the application. The project must cover the complete Software Development Life Cycle (SDLC).
+2. Business Case Study
+A company named "HomeServe Technologies" wants to launch a SaaS-based home services booking platform. Currently, customers find electricians, plumbers, cleaners, and other technicians through local contacts and phone calls. This creates several problems:
+Customers cannot easily find verified service providers.
+Service providers struggle to find new customers.
+Booking appointments manually is time-consuming.
+Customers cannot track service request status.
+Payment records are difficult to maintain.
+Service providers cannot manage their daily schedules.
+Business owners cannot monitor bookings and revenue.
+3. User Roles
+The application must have four main user roles.
+A. Super Admin
+Admin login and dashboard.
+Manage customers.
+Manage service providers.
+Verify service provider registrations.
+Approve or reject service providers.
+Manage service categories.
+Manage all service listings.
+Monitor bookings.
+Manage payments and commissions.
+Manage complaints and disputes.
+Manage coupons and offers.
+Generate business reports and analytics.
+Manage platform subscription plans.
+B. Customer
+Customer registration and login.
+Manage personal profile.
+Browse available home services.
+Search services by category.
+View service provider profiles.
+View ratings and reviews.
+Check service availability.
+Book appointments.
+Select preferred date and time.
+Enter service location and address.
+Upload problem-related images.
+Track booking status.
+Cancel bookings according to cancellation rules.
+Make payments.
+View booking history.
+Download payment receipts.
+Rate and review service providers.
+Raise complaints or support requests.
+C. Service Provider
+Service provider registration.
+Upload identity and verification documents.
+Create and manage service profiles.
+Select service categories.
+Add service descriptions and pricing.
+Define service areas.
+Manage availability and working hours.
+Accept or reject booking requests.
+Assign technicians.
+Update service status.
+View customer information relevant to bookings.
+Upload before-and-after service images.
+View customer reviews.
+Track earnings and commissions.
+View booking history.
+D. Technician
+Technician login.
+View assigned jobs.
+View customer booking details.
+View service location.
+Accept assigned service jobs.
+Update job status.
+Mark technician arrival.
+Upload service completion images.
+Add work completion remarks.
+Update job completion status.
+View assigned job history.
+4. Functional Requirements / Modules
+Module 1: Authentication & Authorization
+TASKS
+User registration and login.
+Role-based registration.
+Email or mobile number validation.
+Forgot password and reset password.
+JWT-based authentication.
+Role-Based Access Control (RBAC).
+Protected routes.
+Secure password storage.
+Logout functionality.
+Service provider verification workflow.
+DELIVERABLES
+Working authentication system.
+Role-based dashboards.
+Secure authorization system.
+Module 2: Customer Management
+TASKS
+Customer registration.
+Customer profile management.
+Add and manage multiple addresses.
+Search and filter services.
+View service history.
+Manage favorite service providers.
+Customer booking history.
+Customer account status management.
+DELIVERABLES
+Customer dashboard.
+Customer profile management.
+Customer service history.
+Module 3: Service Category & Management
+TASKS
+Create service categories.
+Add subcategories.
+Add service descriptions.
+Upload service images.
+Add service pricing.
+Define service duration.
+Set service availability.
+Manage service status.
+Search and filter services.
+EXAMPLE CATEGORIES
+Electrical Services
+Plumbing Services
+AC Repair & Maintenance
+Home Cleaning
+Painting Services
+Carpentry Services
+Appliance Repair
+Pest Control
+DELIVERABLES
+Service category management.
+Service listing page.
+Service detail page.
+Module 4: Service Provider Management
+TASKS
+Service provider registration.
+Provider profile creation.
+Document upload.
+Admin verification.
+Approve or reject providers.
+Add service locations.
+Add service areas.
+Manage service pricing.
+Manage working hours.
+Manage service availability.
+Provider ratings and reviews.
+DELIVERABLES
+Service provider dashboard.
+Provider verification system.
+Service provider management panel.
+Module 5: Booking & Appointment Management
+TASKS
+Customers can select services.
+Select service providers.
+Select preferred date and time.
+Check available time slots.
+Add service address.
+Add service description.
+Upload reference images.
+Generate unique booking ID.
+Confirm booking.
+Cancel booking.
+Reschedule booking.
+View booking history.
+Prevent double booking.
+BOOKING STATUS
+DELIVERABLES
+Complete booking workflow.
+Appointment management system.
+Booking status tracking.
+Module 6: Technician Management
+TASKS
+Add technicians.
+Assign technicians to service providers.
+Assign technicians to bookings.
+View assigned jobs.
+Update job status.
+Mark arrival time.
+Upload completion images.
+Add service remarks.
+Maintain job history.
+Track technician performance.
+DELIVERABLES
+Technician dashboard.
+Job assignment system.
+Job completion tracking.
+Module 7: Payment & Invoice Management
+TASKS
+Calculate service charges.
+Add platform commission.
+Apply discount coupons.
+Calculate final payable amount.
+Support advance and pending payments.
+Maintain payment history.
+Generate invoices.
+Generate payment receipts.
+Manage refunds.
+Track provider earnings.
+Maintain transaction records.
+PAYMENT STATUS
+Payment gateway sandbox integration can be implemented using Razorpay Test Mode or Stripe Test Mode.
+DELIVERABLES
+Payment management system.
+Invoice generation.
+Transaction history.
+Provider earning reports.
+Module 8: Notification & Communication System
+TASKS
+Booking confirmation notifications.
+Booking cancellation notifications.
+Technician assignment notifications.
+Appointment reminders.
+Service completion notifications.
+Payment confirmation notifications.
+Review request notifications.
+Admin announcements.
+Implement an in-app notification center. Email or SMS integration is optional.
+DELIVERABLES
+Notification management.
+User notification history.
+Booking-related alerts.
+Module 9: Rating, Review & Complaint Management
+TASKS
+Customers can rate service providers.
+Customers can submit reviews.
+Display average provider ratings.
+Admin can monitor reviews.
+Customers can raise complaints.
+Admin can review complaints.
+Track complaint resolution status.
+Maintain complaint history.
+Allow providers to respond to reviews.
+DELIVERABLES
+Review management system.
+Complaint management dashboard.
+Provider rating system.
+Module 10: Analytics & Reporting Dashboard
+Admin Dashboard
+Total customers.
+Total service providers.
+Total technicians.
+Total bookings.
+Pending bookings.
+Completed bookings.
+Cancelled bookings.
+Total revenue.
+Platform commission.
+Provider earnings.
+Most popular service categories.
+Monthly booking analytics.
+Customer growth analytics.
+Service Provider Dashboard
+Total bookings.
+Today's bookings.
+Pending requests.
+Completed services.
+Total earnings.
+Average customer rating.
+Monthly revenue.
+Customer Dashboard
+Upcoming appointments.
+Previous bookings.
+Pending payments.
+Favorite services.
+Booking status.
+DELIVERABLES
+Role-based analytics dashboards.
+Graphical reports.
+CSV export functionality.
+5. Technology Stack
+The trainer can use AI coding tools, but the application should use a proper full-stack architecture.
+6. Complete Project Development Phases
+Phase 1: Requirement Analysis & Planning
+TASKS
+Understand the business case study.
+Identify user roles and permissions.
+Prepare functional requirements.
+Prepare non-functional requirements.
+Define business workflows.
+Create user stories.
+Define project scope.
+Prepare project flow diagrams.
+Create a development roadmap.
+DELIVERABLES
+Requirement Specification Document.
+User Stories.
+Project Flow Diagram.
+Module List.
+Business Workflow Diagram.
+Phase 2: UI/UX & Frontend Development
+TASKS
+Create responsive landing page.
+Design customer registration and login pages.
+Design service provider registration page.
+Create Admin dashboard.
+Create Customer dashboard.
+Create Service Provider dashboard.
+Create Technician dashboard.
+Develop service listing pages.
+Develop service detail pages.
+Create booking and checkout pages.
+Develop booking tracking interface.
+Create payment and invoice pages.
+Implement reusable components.
+Add form validations.
+Implement search, filters and pagination.
+Ensure mobile responsiveness.
+DELIVERABLES
+UI/UX design.
+Responsive frontend.
+All role-based application screens.
+Navigation and routing.
+Reusable components.
+Phase 3: Database Design
+TASKS
+Identify database entities.
+Create ER Diagram.
+Define primary and foreign keys.
+Establish table relationships.
+Apply database normalization.
+Create database tables.
+Define unique constraints and indexes.
+Define booking and payment relationships.
+MINIMUM SUGGESTED TABLES
+DELIVERABLES
+ER Diagram.
+Database schema.
+SQL scripts.
+Sample database records.
+Relationship documentation.
+Phase 4: Backend Development
+TASKS
+Create FastAPI application.
+Implement REST APIs.
+Implement CRUD operations.
+Connect MySQL using SQLAlchemy.
+Implement authentication APIs.
+Implement role-based authorization.
+Implement service management APIs.
+Implement booking APIs.
+Implement availability checking.
+Prevent double booking using proper database constraints and transactions.
+Implement technician assignment APIs.
+Implement payment APIs.
+Implement file upload APIs.
+Implement notification APIs.
+Implement review and complaint APIs.
+Implement validation and error handling.
+Implement pagination, search and filtering.
+Implement API documentation.
+DELIVERABLES
+Working backend.
+REST API endpoints.
+Database connectivity.
+Swagger API documentation.
+API response and error handling.
+Phase 5: Frontend & Backend Integration
+TASKS
+Connect React frontend with FastAPI.
+Integrate all required APIs.
+Implement login and logout.
+Implement protected routes.
+Display dynamic service listings.
+Display service provider details.
+Implement appointment booking.
+Implement booking status tracking.
+Integrate payment functionality.
+Implement file uploads.
+Display notifications dynamically.
+Handle API errors.
+Implement loading indicators.
+Verify all user workflows.
+DELIVERABLES
+Fully integrated application.
+Working Admin dashboard.
+Working Customer dashboard.
+Working Service Provider dashboard.
+Working Technician dashboard.
+Phase 6: Testing & Quality Assurance
+Testing must be performed at different levels.
+1. Unit Testing
+Test booking calculations.
+Test service pricing.
+Test commission calculations.
+Test booking validation.
+Test availability logic.
+2. API Testing
+Test GET, POST, PUT, PATCH and DELETE APIs.
+Test valid and invalid requests.
+Test authentication.
+Test unauthorized API access.
+Test booking creation.
+Test payment status updates.
+Test double booking prevention.
+3. Integration Testing
+Test frontend and backend integration.
+Test database operations.
+Test booking workflow.
+Test payment integration.
+Test file uploads.
+Test notification generation.
+4. End-to-End Testing
+Customer registration and login.
+Customer searches for a service.
+Customer selects a provider.
+Customer books an appointment.
+Provider accepts the booking.
+Admin or provider assigns a technician.
+Technician completes the job.
+Customer completes payment.
+Customer submits a review.
+5. UI Testing
+Responsive design.
+Form validation.
+Navigation.
+Error messages.
+Booking confirmation.
+Dashboard functionality.
+TOOLS
+Pytest.
+Postman.
+Playwright.
+DELIVERABLES
+Test cases.
+Test execution report.
+Bug report.
+Screenshots of test results.
+Phase 7: Security Implementation
+The application must follow basic web application security practices.
+TASKS
+Hash passwords using bcrypt or Argon2.
+Never store plain-text passwords.
+Implement JWT authentication securely.
+Apply Role-Based Access Control.
+Ensure customers can access only their own bookings.
+Ensure providers can access only their assigned bookings.
+Ensure technicians can access only assigned jobs.
+Validate and sanitize user inputs.
+Prevent SQL injection using ORM and parameterized queries.
+Apply CORS restrictions.
+Validate uploaded file types and sizes.
+Protect sensitive API endpoints.
+Implement rate limiting on sensitive endpoints.
+Use HTTPS in production.
+Store API keys and secrets in environment variables.
+Avoid exposing sensitive information in error messages.
+Verify payment gateway callbacks or webhooks securely.
+Prevent unauthorized payment status modification.
+Implement secure password reset functionality.
+DELIVERABLES
+Security checklist.
+Authentication and authorization testing.
+Booking access control testing.
+Security issue report.
+Phase 8: GitHub & Version Control
+TASKS
+Create GitHub repository.
+Maintain proper folder structure.
+Use meaningful commit messages.
+Create development and main branches.
+Use feature branches.
+Create Pull Requests.
+Maintain README.md.
+Add .gitignore.
+Never upload API keys or passwords.
+Maintain .env.example.
+DELIVERABLES
+GitHub repository.
+Commit history.
+README documentation.
+Environment configuration instructions.
+Phase 9: Deployment & Production
+TASKS
+Build frontend for production.
+Deploy frontend on Vercel or Netlify.
+Deploy FastAPI backend on Render or another suitable hosting platform.
+Configure cloud database.
+Configure environment variables.
+Configure CORS.
+Connect frontend with production backend.
+Configure file storage.
+Configure payment sandbox credentials.
+Test production APIs.
+Verify login and all major workflows.
+Configure application logging.
+Verify deployment stability.
+DELIVERABLES
+Live application URL.
+Backend API URL.
+GitHub repository URL.
+Deployment documentation.
+7. Vibe Coding Rules
+The trainer must follow these rules:
+Use AI tools for requirement analysis and project planning.
+Generate frontend and backend code using AI assistance.
+Understand every generated code component.
+Do not blindly accept AI-generated code.
+Review and debug generated code.
+Validate database design.
+Verify all APIs.
+Perform manual and automated testing.
+Review security vulnerabilities.
+Maintain proper GitHub commits.
+Deploy the final project.
+Maintain documentation of AI prompts and changes.
+8. Evaluation Criteria
+9. Expected Final Submission
+The trainer must submit:
+Complete source code.
+GitHub repository.
+Live deployed application or deployment evidence.
+Database schema and ER diagram.
+API documentation.
+Test cases and test reports.
+Security checklist.
+Project documentation.
+AI prompts and development log.
+Final presentation.
+Final Objective
+A project will not be considered complete just because its UI looks attractive. Core booking workflows, database operations, APIs, authentication, payment simulation, testing, security and deployment must work properly.
