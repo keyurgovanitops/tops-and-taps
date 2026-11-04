@@ -43,6 +43,29 @@ def get_payment_config():
     }
 
 
+@router.get("/invoice/{booking_id}")
+def get_invoice_by_booking(
+    booking_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Fetches official tax invoice for a given booking ID"""
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking or not booking.invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found for this booking")
+    inv = booking.invoice
+    return {
+        "invoice_number": inv.invoice_number,
+        "booking_code": booking.booking_code,
+        "service_name": booking.service.name if booking.service else "Home Service",
+        "subtotal": inv.subtotal,
+        "discount_amount": inv.discount_amount,
+        "tax_amount": inv.tax_amount,
+        "grand_total": inv.grand_total,
+        "issued_date": getattr(inv, "issued_date", None),
+    }
+
+
 @router.post("/razorpay/create-order")
 def create_razorpay_order(
     req: RazorpayCreateOrderRequest,

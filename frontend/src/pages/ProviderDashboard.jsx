@@ -3,7 +3,8 @@ import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import {
   Briefcase, DollarSign, Star, Users, CheckCircle2, XCircle, UserPlus,
-  Clock, Calendar, MapPin, UploadCloud, AlertCircle, FileCheck, X
+  Clock, Calendar, MapPin, UploadCloud, AlertCircle, FileCheck, X,
+  ShieldCheck, ArrowRight, Wrench, Check
 } from 'lucide-react';
 
 export default function ProviderDashboard() {
@@ -98,175 +99,203 @@ export default function ProviderDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background ambient glows */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/2 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Header & Verification Banner */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-amber-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-700 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-amber-500/25">
               🏢
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl font-black text-white tracking-tight">
                   {profile?.business_name || user?.full_name}
                 </h1>
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                     profile?.verification_status === 'approved'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-amber-100 text-amber-800'
+                      ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                      : 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
                   }`}
                 >
-                  KYC: {profile?.verification_status ? profile.verification_status.toUpperCase() : 'PENDING'}
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>KYC: {profile?.verification_status ? profile.verification_status.toUpperCase() : 'PENDING'}</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Commission: {profile?.commission_rate}% • Rating: {profile?.rating} ★ ({profile?.total_reviews} reviews)
+              <p className="text-xs text-slate-400 mt-1">
+                Platform Commission: {profile?.commission_rate}% • Rating: {profile?.rating} ★ ({profile?.total_reviews} reviews)
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setUploadOpen(true)}
-              className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+              className="py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <UploadCloud className="w-4 h-4" />
-              <span>Upload KYC Document</span>
+              <UploadCloud className="w-4 h-4 text-amber-400" />
+              <span>Submit KYC Proof</span>
             </button>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div data-tour="provider-stats" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-xl">
             <div className="flex justify-between items-center text-slate-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">Total Bookings</span>
-              <Briefcase className="w-4 h-4 text-blue-600" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Total Orders</span>
+              <Briefcase className="w-4 h-4 text-blue-400" />
             </div>
-            <p className="text-2xl font-black text-slate-900">{analytics?.total_bookings || 0}</p>
-            <span className="text-[11px] text-slate-500 mt-1 block">Pending: {analytics?.pending_requests || 0}</span>
+            <p className="text-2xl font-black text-white">{analytics?.total_bookings || 0}</p>
+            <span className="text-[11px] text-slate-500 mt-1 block">Pending Dispatch: {analytics?.pending_requests || 0}</span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-xl">
             <div className="flex justify-between items-center text-slate-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">Completed</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Completed</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-black text-slate-900">{analytics?.completed_services || 0}</p>
-            <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">Successfully Delivered</span>
+            <p className="text-2xl font-black text-white">{analytics?.completed_services || 0}</p>
+            <span className="text-[11px] text-emerald-400 font-semibold mt-1 block">Successfully Delivered</span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-xl">
             <div className="flex justify-between items-center text-slate-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">Net Earnings</span>
-              <DollarSign className="w-4 h-4 text-emerald-600" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Net Settlements</span>
+              <DollarSign className="w-4 h-4 text-cyan-400" />
             </div>
-            <p className="text-2xl font-black text-emerald-600">₹{analytics?.total_net_earnings || 0}</p>
-            <span className="text-[11px] text-slate-400 mt-1 block">After {profile?.commission_rate}% Platform Cut</span>
+            <p className="text-2xl font-black text-cyan-400">₹{analytics?.total_net_earnings || 0}</p>
+            <span className="text-[11px] text-slate-500 mt-1 block">Post {profile?.commission_rate}% Platform Cut</span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-xl">
             <div className="flex justify-between items-center text-slate-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">Technicians</span>
-              <Users className="w-4 h-4 text-indigo-600" />
+              <span className="text-[11px] font-bold uppercase tracking-wider">Field Technicians</span>
+              <Users className="w-4 h-4 text-indigo-400" />
             </div>
-            <p className="text-2xl font-black text-slate-900">{technicians.length}</p>
+            <p className="text-2xl font-black text-white">{technicians.length}</p>
             <span className="text-[11px] text-slate-500 mt-1 block">Available for Dispatch</span>
           </div>
         </div>
 
         {/* Bookings Dispatch Table */}
-        <div data-tour="provider-orders" className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-          <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+        <div data-tour="provider-orders" className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white/10 overflow-hidden shadow-xl">
+          <div className="p-6 border-b border-white/10 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">Booking Dispatch Management</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Accept incoming service orders and dispatch field technicians</p>
+              <h2 className="text-lg font-black text-white tracking-tight">Booking Dispatch Operations</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Manage incoming orders, assign field staff, and trigger completion</p>
             </div>
-            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+            <span className="text-xs font-mono font-bold text-cyan-300 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
               {bookings.length} Orders
             </span>
           </div>
 
           {loading ? (
-            <div className="text-center py-16 text-xs text-slate-400">Loading orders...</div>
+            <div className="text-center py-16 text-xs text-slate-400 flex flex-col items-center gap-2">
+              <div className="w-7 h-7 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>Fetching provider dispatches...</span>
+            </div>
           ) : bookings.length === 0 ? (
-            <div className="text-center py-16 text-xs text-slate-500">
-              No orders assigned to your business yet.
+            <div className="text-center py-16 text-xs text-slate-400">
+              No orders assigned to your partner account yet.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-white/10">
               {bookings.map((b) => (
-                <div key={b.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
-                  <div className="space-y-1 max-w-lg">
+                <div key={b.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-5 hover:bg-white/5 transition-colors">
+                  <div className="space-y-1.5 max-w-lg text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-blue-600">{b.booking_code}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                      <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+                        {b.booking_code}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
                         {b.status}
                       </span>
                     </div>
-                    <h3 className="font-bold text-slate-900 text-sm">{b.service_name}</h3>
-                    <p className="text-xs text-slate-600">Customer: <span className="font-medium text-slate-800">{b.customer_name}</span> ({b.customer_phone})</p>
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <h3 className="font-black text-white text-base mt-1">{b.service_name}</h3>
+                    <p className="text-slate-300">
+                      Customer: <span className="font-bold text-white">{b.customer_name}</span> ({b.customer_phone})
+                    </p>
+                    <p className="text-slate-400 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                       <span>{b.address}</span>
                     </p>
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <p className="text-slate-400 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                       <span>{b.booking_date} ({b.time_slot})</span>
                     </p>
                     {b.problem_description && (
-                      <p className="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                        Problem note: "{b.problem_description}"
+                      <p className="text-slate-400 bg-white/5 p-2.5 rounded-xl border border-white/5 italic">
+                        "{b.problem_description}"
                       </p>
                     )}
                   </div>
 
-                  <div className="flex flex-col md:items-end justify-between gap-3">
+                  <div className="flex flex-col md:items-end justify-between gap-3 text-xs">
                     <div className="text-right">
-                      <span className="text-base font-black text-slate-900">₹{b.final_amount}</span>
-                      <p className="text-[11px] text-emerald-600 font-bold">
-                        Net: ₹{(b.final_amount * 0.85).toFixed(2)}
+                      <span className="text-lg font-black text-white">₹{b.final_amount}</span>
+                      <p className="text-[11px] text-emerald-400 font-bold">
+                        Net Payout: ₹{(b.final_amount * 0.85).toFixed(2)}
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+                    <div className="flex flex-wrap items-center gap-2 font-bold">
                       {/* Accept / Reject */}
                       {b.status === 'Pending' && (
                         <>
                           <button
                             onClick={() => handleUpdateStatus(b.id, 'Confirmed')}
-                            className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1"
+                            className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center gap-1 cursor-pointer transition-colors"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Accept Order</span>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Accept</span>
                           </button>
                           <button
                             onClick={() => handleUpdateStatus(b.id, 'Rejected')}
-                            className="py-1.5 px-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg flex items-center gap-1"
+                            className="py-1.5 px-3 bg-red-600/80 hover:bg-red-600 text-white rounded-xl flex items-center gap-1 cursor-pointer transition-colors"
                           >
-                            <XCircle className="w-3.5 h-3.5" />
+                            <X className="w-3.5 h-3.5" />
                             <span>Reject</span>
                           </button>
                         </>
                       )}
 
-                      {/* Assign Technician */}
+                      {/* Assign Tech */}
                       {['Confirmed', 'Provider Assigned'].includes(b.status) && (
                         <button
-                          onClick={() => setSelectedBookingForAssign(b)}
-                          className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1"
+                          onClick={() => {
+                            setSelectedBookingForAssign(b);
+                            if (technicians.length > 0) setSelectedTechId(technicians[0].id);
+                          }}
+                          className="py-1.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/20"
                         >
                           <UserPlus className="w-3.5 h-3.5" />
-                          <span>{b.assigned_technician ? 'Reassign Tech' : 'Assign Technician'}</span>
+                          <span>Assign Technician</span>
                         </button>
                       )}
 
-                      {b.assigned_technician && (
-                        <span className="text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-lg">
-                          Assigned: {b.assigned_technician.name}
-                        </span>
+                      {/* Advance Status */}
+                      {b.status === 'Provider Assigned' && (
+                        <button
+                          onClick={() => handleUpdateStatus(b.id, 'In Progress')}
+                          className="py-1.5 px-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl cursor-pointer transition-colors"
+                        >
+                          Mark In Progress
+                        </button>
+                      )}
+
+                      {b.status === 'In Progress' && (
+                        <button
+                          onClick={() => handleUpdateStatus(b.id, 'Completed')}
+                          className="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl cursor-pointer transition-colors"
+                        >
+                          Complete Job
+                        </button>
                       )}
                     </div>
                   </div>
@@ -279,48 +308,47 @@ export default function ProviderDashboard() {
 
       {/* Assign Technician Modal */}
       {selectedBookingForAssign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Assign Field Technician</h3>
-              <button onClick={() => setSelectedBookingForAssign(null)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold">Assign Field Technician</h3>
+              <button
+                onClick={() => setSelectedBookingForAssign(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-slate-500">
-              Dispatch a technician for booking <span className="font-bold text-slate-800">{selectedBookingForAssign.booking_code}</span> ({selectedBookingForAssign.service_name}).
+            <p className="text-xs text-slate-400">
+              Booking: <span className="text-cyan-400 font-mono">{selectedBookingForAssign.booking_code}</span> • {selectedBookingForAssign.service_name}
             </p>
-
-            <form onSubmit={handleAssignTechnician} className="space-y-4">
+            <form onSubmit={handleAssignTechnician} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Choose Technician</label>
-                <div className="space-y-2">
-                  {technicians.map((t) => (
-                    <div
-                      key={t.id}
-                      onClick={() => setSelectedTechId(t.id)}
-                      className={`p-3 rounded-xl border cursor-pointer text-xs flex items-center justify-between transition-colors ${
-                        selectedTechId === t.id
-                          ? 'border-blue-600 bg-blue-50 font-bold text-blue-900'
-                          : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <div>
-                        <p className="font-bold">{t.full_name}</p>
-                        <p className="text-[10px] text-slate-500">{t.specialization} • {t.phone}</p>
-                      </div>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
-                        Available
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <label className="block font-bold text-slate-300 mb-2">Select On-Duty Staff</label>
+                {technicians.length === 0 ? (
+                  <p className="text-amber-400 bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+                    No active technicians registered under your business.
+                  </p>
+                ) : (
+                  <select
+                    value={selectedTechId}
+                    onChange={(e) => setSelectedTechId(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                  >
+                    {technicians.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.specialization}) {t.is_available ? '• Available' : '• Busy'}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
-
               <button
                 type="submit"
-                disabled={assignLoading}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
+                disabled={assignLoading || technicians.length === 0}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-blue-500/25 cursor-pointer disabled:opacity-50"
               >
-                {assignLoading ? 'Dispatching...' : 'Confirm Dispatch'}
+                {assignLoading ? 'Dispatching...' : 'Confirm Field Dispatch'}
               </button>
             </form>
           </div>
@@ -329,26 +357,32 @@ export default function ProviderDashboard() {
 
       {/* KYC Upload Modal */}
       {uploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Upload Identity & Verification Document</h3>
-              <button onClick={() => setUploadOpen(false)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold">Upload KYC Documentation</h3>
+              <button
+                onClick={() => setUploadOpen(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-slate-500">
-              Submit business GST, Trade License, or government ID proof for Super Admin verification.
-            </p>
-            <form onSubmit={handleUploadKYC} className="space-y-4">
+            <form onSubmit={handleUploadKYC} className="space-y-4 text-xs">
+              <p className="text-slate-400">
+                Upload your Business Registration Certificate, GST Certificate, or Government ID proof.
+              </p>
               <input
                 type="file"
-                required
                 onChange={(e) => setUploadFile(e.target.files[0])}
-                className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-slate-300 text-xs"
+                accept="image/*,.pdf"
+                required
               />
               <button
                 type="submit"
                 disabled={uploadLoading}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
+                className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 {uploadLoading ? 'Uploading...' : 'Submit Document'}
               </button>
@@ -359,4 +393,3 @@ export default function ProviderDashboard() {
     </div>
   );
 }
-

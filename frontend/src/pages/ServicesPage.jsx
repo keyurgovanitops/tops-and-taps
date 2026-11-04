@@ -4,7 +4,7 @@ import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import {
   Search, Clock, ShieldCheck, Tag, Star, ArrowRight, X, Calendar,
-  MapPin, CheckCircle2, AlertCircle, Plus, UploadCloud
+  MapPin, CheckCircle2, AlertCircle, Plus, Sparkles, Zap, Lock
 } from 'lucide-react';
 import AuthModal from '../components/AuthModal';
 import PaymentModal from '../components/PaymentModal';
@@ -59,7 +59,9 @@ export default function ServicesPage() {
   const [createdBooking, setCreatedBooking] = useState(null);
 
   useEffect(() => {
-    client.get('/api/services/categories').then((res) => setCategories(res.data)).catch(() => {});
+    client.get('/api/services/categories')
+      .then((res) => setCategories(res.data))
+      .catch(() => {});
   }, []);
 
   const fetchServices = () => {
@@ -98,7 +100,7 @@ export default function ServicesPage() {
       return;
     }
     if (role !== 'customer') {
-      alert(`You are currently logged in as ${role}. Please sign in as a Customer to make bookings.`);
+      alert(`You are logged in as ${role}. Please sign in as a Customer to book appointments.`);
       return;
     }
 
@@ -133,7 +135,7 @@ export default function ServicesPage() {
       setCouponApplied(res.data);
       setBookingError('');
     } catch (err) {
-      setBookingError(err.response?.data?.detail || 'Invalid coupon');
+      setBookingError(err.response?.data?.detail || 'Invalid or expired coupon code.');
       setCouponApplied(null);
     }
   };
@@ -190,57 +192,67 @@ export default function ServicesPage() {
       setBookingModalOpen(false);
       setPaymentModalOpen(true);
     } catch (err) {
-      setBookingError(err.response?.data?.detail || 'Booking failed. Try a different date/slot.');
+      setBookingError(err.response?.data?.detail || 'Booking failed. Try selecting another date or slot.');
     } finally {
       setBookingLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/3 right-10 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto space-y-10 relative z-10">
         {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/10 pb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Services Directory</h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Select verified services with transparent pricing, instant slot booking, and warranty.
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-cyan-400 text-xs font-bold tracking-wide uppercase mb-3">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Instant Verified Dispatch</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Services Directory
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-2 max-w-xl leading-relaxed">
+              Transparent upfront pricing, 30-day service warranty, and KYC-verified technicians dispatched directly to your doorstep.
             </p>
           </div>
 
           {/* Search box */}
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+          <div className="relative w-full md:w-96">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
             <input
               type="text"
-              placeholder="Search services or tasks..."
+              placeholder="Search services (e.g. AC repair, plumbing, wiring)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-3 text-xs bg-slate-900/90 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all shadow-inner"
             />
           </div>
         </div>
 
         {/* Categories Bar */}
-        <div data-tour="services-filter" className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div data-tour="services-filter" className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
           <button
             onClick={() => setSelectedCat(null)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
               selectedCat === null
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25 border border-cyan-400/40'
+                : 'bg-slate-900/80 border border-white/10 text-slate-400 hover:text-white hover:border-white/20'
             }`}
           >
-            All Categories ({services.length})
+            All Services ({services.length})
           </button>
           {categories.map((c) => (
             <button
               key={c.id}
               onClick={() => setSelectedCat(c.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold shrink-0 transition-all ${
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                 selectedCat === c.id
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/25 border border-cyan-400/40'
+                  : 'bg-slate-900/80 border border-white/10 text-slate-400 hover:text-white hover:border-white/20'
               }`}
             >
               {c.name}
@@ -250,11 +262,14 @@ export default function ServicesPage() {
 
         {/* Services Grid */}
         {loading ? (
-          <div className="text-center py-20 text-xs text-slate-400">Loading catalog...</div>
+          <div className="text-center py-24 text-xs text-slate-400 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+            <span>Fetching verified services catalog...</span>
+          </div>
         ) : services.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 p-8">
-            <p className="text-slate-600 font-bold text-sm">No services found.</p>
-            <p className="text-xs text-slate-400 mt-1">Try searching a different keyword or category.</p>
+          <div className="text-center py-20 bg-slate-900/50 rounded-3xl border border-white/10 p-10">
+            <p className="text-white font-bold text-base">No services match your search.</p>
+            <p className="text-xs text-slate-400 mt-1">Try resetting the category filter or searching for broader terms.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -262,43 +277,45 @@ export default function ServicesPage() {
               <div
                 key={srv.id}
                 data-tour={idx === 0 ? "service-card" : undefined}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg hover:border-blue-300 transition-all flex flex-col justify-between"
+                className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white/10 overflow-hidden hover:border-cyan-500/40 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
               >
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                      {srv.subcategory || 'Standard Service'}
+                <div className="p-6">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full">
+                      {srv.subcategory || 'Certified Service'}
                     </span>
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
+                      <Clock className="w-3.5 h-3.5 text-cyan-400" />
                       <span>{srv.duration_mins} mins</span>
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-base leading-snug">{srv.name}</h3>
-                  <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">
+                  <h3 className="font-black text-white text-lg group-hover:text-cyan-300 transition-colors">
+                    {srv.name}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-2.5 leading-relaxed line-clamp-2">
                     {srv.description}
                   </p>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Starts from</span>
-                      <span className="text-lg font-black text-slate-900">₹{srv.base_price}</span>
+                      <span className="text-[10px] text-slate-400 block font-medium">Standard Base Fee</span>
+                      <span className="text-xl font-black text-white tracking-tight">₹{srv.base_price}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-emerald-600 text-xs font-semibold">
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Warranty</span>
+                    <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>30d Warranty</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 pb-5">
+                <div className="px-6 pb-6 pt-1">
                   <button
                     onClick={() => handleOpenBooking(srv)}
-                    className="w-full py-2.5 px-4 bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-cyan-600 text-white font-bold text-xs rounded-2xl transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-cyan-500/25"
                   >
-                    <span>Book Appointment</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <span>Schedule Appointment</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -307,124 +324,130 @@ export default function ServicesPage() {
         )}
       </div>
 
-      {/* Booking Checkout Drawer / Modal */}
+      {/* Booking Drawer / Modal */}
       {bookingModalOpen && selectedService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 my-8 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden my-8 animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="p-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white relative">
+            <div className="p-6 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 border-b border-white/10 text-white relative">
               <button
                 onClick={() => setBookingModalOpen(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                className="absolute top-5 right-5 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-200">Appointment Booking</span>
-              <h2 className="text-lg font-bold mt-0.5">{selectedService.name}</h2>
-              <p className="text-xs text-blue-100 mt-1">₹{selectedService.base_price} • Approx {selectedService.duration_mins} mins</p>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                Verified Booking
+              </span>
+              <h2 className="text-xl font-black mt-1 text-white">{selectedService.name}</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Standard Fee: <span className="text-cyan-300 font-bold">₹{selectedService.base_price}</span> • Duration: {selectedService.duration_mins} mins
+              </p>
             </div>
 
-            <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+            <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto text-xs text-slate-300">
               {bookingError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-xs text-red-600">
+                <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-2.5 text-xs text-red-400">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{bookingError}</span>
                 </div>
               )}
 
-              {/* 1. Choose Service Provider */}
+              {/* 1. Choose Service Partner */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                <label className="block text-xs font-bold text-white mb-2 uppercase tracking-wider text-[11px]">
                   1. Select Service Partner
                 </label>
                 {serviceDetails?.available_providers?.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {serviceDetails.available_providers.map((p) => (
                       <div
                         key={p.id}
                         onClick={() => setSelectedProviderId(p.id)}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
                           selectedProviderId === p.id
-                            ? 'border-blue-600 bg-blue-50/70 text-blue-900 font-medium'
-                            : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                            ? 'border-cyan-500 bg-cyan-500/10 text-white font-bold ring-1 ring-cyan-500 shadow-md'
+                            : 'border-white/10 bg-white/5 hover:bg-white/10 text-slate-300'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs">{p.business_name}</span>
-                          <span className="text-[11px] text-amber-600 font-bold flex items-center gap-0.5">
+                          <span className="font-bold text-xs truncate">{p.business_name}</span>
+                          <span className="text-[11px] text-amber-400 font-bold flex items-center gap-1">
                             <Star className="w-3 h-3 fill-amber-400" />
                             {p.rating}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 mt-1">Verified partner • ₹{p.price}</p>
+                        <p className="text-[10px] text-slate-400 mt-1">Verified Partner • ₹{p.price}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    TOPS &amp; Taps Certified Network (Automatic Best Partner Dispatch)
-                  </p>
+                  <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-cyan-300 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 shrink-0 text-cyan-400" />
+                    <span>TOPS &amp; Taps Automated Dispatch: System will instantly assign top-rated verified partner.</span>
+                  </div>
                 )}
               </div>
 
               {/* 2. Date & Time Slot */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                    <span>2. Booking Date</span>
-                  </label>
-                  <input
-                    type="date"
-                    min={new Date().toISOString().split('T')[0]}
-                    value={bookingDate}
-                    onChange={(e) => setBookingDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>3. Time Slot</span>
-                  </label>
-                  <select
-                    value={selectedSlot}
-                    onChange={(e) => setSelectedSlot(e.target.value)}
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    {timeSlots.map((slot) => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
-                  </select>
+              <div className="space-y-3">
+                <label className="block text-xs font-bold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-cyan-400" />
+                  <span>2. Select Schedule Slot</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-1">
+                    <span className="text-[10px] text-slate-400 block mb-1">Appointment Date</span>
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split('T')[0]}
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white font-mono text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-[10px] text-slate-400 block mb-1">Preferred Time Window</span>
+                    <select
+                      value={selectedSlot}
+                      onChange={(e) => setSelectedSlot(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                    >
+                      {timeSlots.map((ts) => (
+                        <option key={ts} value={ts}>{ts}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* 3. Address Selector */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                    <span>4. Service Address</span>
+              {/* 3. Address Selection */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-cyan-400" />
+                    <span>3. Service Address</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowAddAddress(!showAddAddress)}
-                    className="text-[11px] text-blue-600 hover:text-blue-700 font-bold flex items-center gap-0.5"
+                    className="text-cyan-400 hover:text-cyan-300 font-bold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
-                    <Plus className="w-3 h-3" />
-                    <span>{showAddAddress ? 'Cancel' : 'Add New'}</span>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{showAddAddress ? 'Close' : 'Add New'}</span>
                   </button>
                 </div>
 
-                {showAddAddress ? (
-                  <div className="p-3 bg-blue-50/50 border border-blue-200 rounded-xl space-y-2 text-xs">
+                {showAddAddress && (
+                  <form onSubmit={handleAddAddress} className="p-4 bg-slate-950 border border-cyan-500/30 rounded-2xl space-y-3">
+                    <span className="text-[11px] font-bold text-cyan-300 block">Add New Home Address</span>
                     <input
                       type="text"
-                      placeholder="Street address / Flat number..."
+                      placeholder="Flat, Apartment / Building name, Landmark"
                       value={newAddrLine}
                       onChange={(e) => setNewAddrLine(e.target.value)}
-                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                      className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-cyan-400"
+                      required
                     />
                     <div className="grid grid-cols-2 gap-2">
                       <input
@@ -432,129 +455,145 @@ export default function ServicesPage() {
                         placeholder="City"
                         value={newCity}
                         onChange={(e) => setNewCity(e.target.value)}
-                        className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs"
                       />
                       <input
                         type="text"
                         placeholder="Pincode"
                         value={newPincode}
                         onChange={(e) => setNewPincode(e.target.value)}
-                        className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs font-mono"
                       />
                     </div>
                     <button
-                      type="button"
-                      onClick={handleAddAddress}
-                      className="py-1 px-3 bg-blue-600 text-white rounded-lg font-bold text-[11px]"
+                      type="submit"
+                      className="py-2 px-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors"
                     >
-                      Save Address
+                      Save &amp; Use Address
                     </button>
-                  </div>
-                ) : addresses.length > 0 ? (
-                  <div className="space-y-1.5">
+                  </form>
+                )}
+
+                {addresses.length === 0 ? (
+                  <p className="text-amber-400 text-xs bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+                    No address on file. Please click "+ Add New" above to save your service location.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {addresses.map((a) => (
                       <div
                         key={a.id}
                         onClick={() => setSelectedAddressId(a.id)}
-                        className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-colors flex items-center justify-between ${
+                        className={`p-3 rounded-2xl border cursor-pointer transition-all ${
                           selectedAddressId === a.id
-                            ? 'border-blue-600 bg-blue-50/60 font-semibold text-blue-900'
-                            : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                            ? 'border-cyan-500 bg-cyan-500/10 text-white font-medium ring-1 ring-cyan-500'
+                            : 'border-white/10 bg-white/5 hover:bg-white/10 text-slate-300'
                         }`}
                       >
-                        <div>
-                          <span className="font-bold mr-1.5">{a.title}:</span>
-                          <span>{a.address_line}, {a.city} - {a.pincode}</span>
-                        </div>
-                        {selectedAddressId === a.id && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                        <p className="font-bold text-white text-xs">{a.title} {a.is_default && '(Default)'}</p>
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5">{a.address_line}</p>
+                        <p className="text-[10px] text-slate-500">{a.city} - {a.pincode}</p>
                       </div>
                     ))}
-                  </div>
-                ) : (
-                  <div className="text-xs text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200">
-                    No address saved yet. Click "Add New" above to enter your service location.
                   </div>
                 )}
               </div>
 
-              {/* 4. Notes / Problem details */}
+              {/* 4. Notes / Problem Details */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  5. Problem Details / Instructions
+                <label className="block text-xs font-bold text-white uppercase tracking-wider text-[11px] mb-1.5">
+                  4. Problem Description / Instructions (Optional)
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Bring extra copper wire / Call when near gate"
                   value={problemDesc}
                   onChange={(e) => setProblemDesc(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
+                  placeholder="e.g. Master bedroom switch spark, please bring spare 16A modular switch."
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                />
               </div>
 
-              {/* 5. Coupon code */}
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1">
-                  6. Apply Discount Coupon
-                </label>
+              {/* 5. Coupon Promo Code */}
+              <div className="p-4 bg-slate-950 border border-white/10 rounded-2xl space-y-2">
+                <span className="text-[11px] font-bold text-white uppercase tracking-wider block">
+                  Promo Discount Code
+                </span>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Try 'WELCOME50' or 'TOPSTAPS100'"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-3 py-2 text-xs border border-slate-200 rounded-xl uppercase font-mono font-bold"
+                    placeholder="Try WELCOME50 or TOPSTAPS100"
+                    className="flex-1 px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white font-mono text-xs focus:outline-none focus:border-cyan-400"
                   />
                   <button
                     type="button"
                     onClick={handleApplyCoupon}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl"
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors"
                   >
                     Apply
                   </button>
                 </div>
                 {couponApplied && (
-                  <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                  <p className="text-emerald-400 text-xs font-bold flex items-center gap-1 mt-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Coupon {couponApplied.coupon_code} applied: Saved ₹{couponApplied.discount_amount}!</span>
+                    <span>Coupon {couponApplied.coupon_code} applied! Saved ₹{couponApplied.discount_amount}</span>
                   </p>
                 )}
               </div>
 
-              {/* Summary & Confirm */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>Base Charge</span>
-                  <span>₹{selectedService.base_price}</span>
+              {/* Pricing Breakdown Summary */}
+              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl space-y-1.5">
+                <div className="flex justify-between text-slate-400">
+                  <span>Standard Service Base</span>
+                  <span className="text-white font-bold">₹{selectedService.base_price}</span>
                 </div>
                 {couponApplied && (
-                  <div className="flex justify-between text-emerald-600 font-semibold">
+                  <div className="flex justify-between text-emerald-400 font-bold">
                     <span>Discount</span>
                     <span>- ₹{couponApplied.discount_amount}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-slate-200 text-sm">
-                  <span>Payable at Checkout</span>
-                  <span className="text-blue-600">
-                    ₹{couponApplied ? couponApplied.final_amount : selectedService.base_price}
+                <div className="flex justify-between text-slate-400">
+                  <span>GST (18% CGST + SGST)</span>
+                  <span>₹{((couponApplied ? couponApplied.final_amount : selectedService.base_price) * 0.18).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-base font-black text-white pt-2 border-t border-white/10">
+                  <span>Total Payable</span>
+                  <span className="text-cyan-400">
+                    ₹{((couponApplied ? couponApplied.final_amount : selectedService.base_price) * 1.18).toFixed(2)}
                   </span>
                 </div>
               </div>
 
+              {/* Confirm CTA */}
               <button
                 type="button"
                 onClick={handleConfirmBooking}
                 disabled={bookingLoading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-blue-500/20 disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black rounded-2xl text-xs transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
               >
-                {bookingLoading ? 'Reserving Appointment...' : 'Proceed to Payment & Confirm'}
+                {bookingLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span>Confirming Appointment Slot...</span>
+                  </span>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4 text-cyan-300" />
+                    <span>Confirm &amp; Proceed to Payment</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Auth & Payment Modals */}
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} defaultRole="customer" />
+      {/* Auth Modal */}
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+
+      {/* Razorpay Payment Modal */}
       <PaymentModal
         isOpen={paymentModalOpen}
         onClose={() => {
@@ -569,4 +608,3 @@ export default function ServicesPage() {
     </div>
   );
 }
-

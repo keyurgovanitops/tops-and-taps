@@ -3,7 +3,8 @@ import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import {
   Wrench, CheckCircle2, Clock, MapPin, Phone, Calendar,
-  UploadCloud, AlertCircle, FileText, ChevronRight, Check, X
+  UploadCloud, AlertCircle, FileText, ChevronRight, Check, X,
+  ShieldCheck, Camera
 } from 'lucide-react';
 
 export default function TechnicianDashboard() {
@@ -68,7 +69,7 @@ export default function TechnicianDashboard() {
       await client.post(`/api/technicians/jobs/${uploadJob.booking_id}/upload-image?image_type=${uploadType}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      alert('Proof image uploaded successfully!');
+      alert('Proof of service image uploaded successfully!');
       setUploadJob(null);
       setUploadFile(null);
       fetchJobs();
@@ -80,178 +81,154 @@ export default function TechnicianDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background ambient glows */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/2 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto space-y-6 relative z-10">
         {/* Top Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-cyan-500/20">
-              🔧
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-cyan-500/25">
+              <Wrench className="w-7 h-7" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black text-slate-900">{user?.full_name}</h1>
-                <span className="bg-cyan-100 text-cyan-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <h1 className="text-xl font-black text-white">{user?.full_name}</h1>
+                <span className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
                   Field Technician
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">{user?.specialization || 'Home Services Technician'}</p>
+              <p className="text-xs text-slate-400 mt-1">{user?.specialization || 'Master Home Electrician & AC Specialist'}</p>
             </div>
           </div>
 
-          <div className="text-right">
-            <span className="text-xs font-bold text-slate-500">Active Work Orders:</span>
-            <span className="ml-2 text-lg font-black text-cyan-700">{jobs.length}</span>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-2xl text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-slate-300 font-semibold">Active &amp; Ready for Jobs</span>
           </div>
         </div>
 
         {/* Jobs List */}
         <div data-tour="tech-jobs" className="space-y-4">
-          <h2 className="text-base font-black text-slate-900 tracking-tight">Assigned Job Tasks</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+              <span>My Assigned Field Work</span>
+              <span className="text-xs font-mono bg-white/10 text-cyan-400 px-2 py-0.5 rounded-full">
+                {jobs.length}
+              </span>
+            </h2>
+          </div>
 
           {loading ? (
-            <div className="text-center py-16 text-xs text-slate-400">Loading assignments...</div>
+            <div className="text-center py-16 text-xs text-slate-400 flex flex-col items-center gap-2">
+              <div className="w-7 h-7 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>Fetching your job queue...</span>
+            </div>
           ) : jobs.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center">
-              <p className="font-bold text-slate-700 text-sm">No jobs assigned right now.</p>
-              <p className="text-xs text-slate-400 mt-1">Check back once your service provider dispatches a work order.</p>
+            <div className="bg-slate-900/60 rounded-3xl p-10 border border-white/10 text-center space-y-2">
+              <p className="font-bold text-white text-base">No active jobs assigned today.</p>
+              <p className="text-xs text-slate-400">Keep your app open. Your provider will dispatch assignments shortly.</p>
             </div>
           ) : (
             jobs.map((j) => (
               <div
                 key={j.assignment_id}
-                className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
+                className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white/10 p-6 shadow-xl space-y-5 hover:border-white/20 transition-all"
               >
                 {/* Header */}
-                <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
                   <div>
-                    <span className="font-mono text-xs font-bold text-slate-400">{j.booking_code}</span>
-                    <h3 className="font-bold text-slate-900 text-base">{j.service_name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+                        {j.booking_code}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
+                        {j.assignment_status}
+                      </span>
+                    </div>
+                    <h3 className="font-black text-white text-base mt-1.5">{j.service_name}</h3>
+                    <p className="text-xs text-slate-400">Customer: <span className="font-bold text-white">{j.customer_name}</span></p>
                   </div>
-                  <span
-                    className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                      j.job_status === 'Completed'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : j.job_status === 'In Progress'
-                        ? 'bg-blue-100 text-blue-800 animate-pulse'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}
+
+                  <a
+                    href={`tel:${j.customer_phone}`}
+                    className="py-2 px-3.5 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    {j.job_status}
-                  </span>
+                    <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Call Customer</span>
+                  </a>
                 </div>
 
-                {/* Customer Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="space-y-1">
-                    <p className="text-slate-400 font-bold uppercase text-[10px]">Customer Contact</p>
-                    <p className="font-bold text-slate-800">{j.customer_name}</p>
-                    <a href={`tel:${j.customer_phone}`} className="text-blue-600 font-medium flex items-center gap-1 hover:underline">
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>{j.customer_phone}</span>
-                    </a>
+                {/* Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                    <Calendar className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>{j.booking_date} ({j.time_slot})</span>
                   </div>
-
-                  <div className="space-y-1">
-                    <p className="text-slate-400 font-bold uppercase text-[10px]">Location & Slot</p>
-                    <p className="text-slate-700 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>{j.address}</span>
-                    </p>
-                    <p className="text-slate-500 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span>{j.booking_date} ({j.time_slot})</span>
-                    </p>
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                    <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="truncate">{j.address}</span>
                   </div>
                 </div>
 
                 {j.problem_description && (
-                  <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-700 border border-slate-100">
-                    <span className="font-bold block mb-0.5 text-slate-900">Customer Note:</span>
-                    <p>{j.problem_description}</p>
+                  <div className="p-3 bg-white/5 rounded-2xl border border-white/5 text-xs">
+                    <span className="font-bold text-slate-400 text-[10px] uppercase block mb-0.5">Problem Notes</span>
+                    <p className="text-slate-300 italic">"{j.problem_description}"</p>
                   </div>
                 )}
 
-                {j.technician_notes && (
-                  <div className="p-3 bg-blue-50/50 rounded-xl text-xs text-blue-900 border border-blue-100">
-                    <span className="font-bold block mb-0.5">Technician Completion Remarks:</span>
-                    <p>{j.technician_notes}</p>
-                  </div>
-                )}
-
-                {/* Attached Work Photos */}
-                {j.images?.length > 0 && (
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-slate-400">Attached Photos:</span>
-                    <div className="flex gap-2 overflow-x-auto py-1">
-                      {j.images.map((img) => (
-                        <div key={img.id} className="relative rounded-lg overflow-hidden border border-slate-200 w-20 h-20 shrink-0">
-                          <img src={img.url} alt="work photo" className="w-full h-full object-cover" />
-                          <span className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[9px] text-center font-bold">
-                            {img.type}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs font-bold">
-                  {j.job_status !== 'Completed' && (
-                    <>
-                      {j.job_status === 'Assigned' && (
-                        <button
-                          onClick={() => {
-                            setActiveJobForUpdate(j);
-                            setNextStatus('En Route');
-                          }}
-                          className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs"
-                        >
-                          Mark En Route / Arrived
-                        </button>
-                      )}
-
-                      {j.job_status === 'En Route' && (
-                        <button
-                          onClick={() => {
-                            setActiveJobForUpdate(j);
-                            setNextStatus('In Progress');
-                          }}
-                          className="py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs"
-                        >
-                          Start Job (In Progress)
-                        </button>
-                      )}
-
-                      {j.job_status === 'In Progress' && (
-                        <button
-                          onClick={() => {
-                            setActiveJobForUpdate(j);
-                            setNextStatus('Completed');
-                          }}
-                          className="py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center gap-1.5"
-                        >
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>Mark Job Completed</span>
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => setUploadJob(j)}
-                        className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center gap-1.5 ml-auto"
-                      >
-                        <UploadCloud className="w-4 h-4" />
-                        <span>Upload Work Photo</span>
-                      </button>
-                    </>
+                {/* Status Advancement & Image Upload buttons */}
+                <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs font-bold">
+                  {/* Status transitions */}
+                  {j.assignment_status === 'Assigned' && (
+                    <button
+                      onClick={() => {
+                        setActiveJobForUpdate(j);
+                        setNextStatus('En Route');
+                      }}
+                      className="py-2 px-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl cursor-pointer shadow-md shadow-blue-500/20"
+                    >
+                      Start Travel (En Route)
+                    </button>
                   )}
-                  {j.job_status === 'Completed' && (
-                    <span className="text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                      <Check className="w-4 h-4" />
-                      <span>Task Closed & Verified</span>
-                    </span>
+
+                  {j.assignment_status === 'En Route' && (
+                    <button
+                      onClick={() => {
+                        setActiveJobForUpdate(j);
+                        setNextStatus('In Progress');
+                      }}
+                      className="py-2 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl cursor-pointer shadow-md shadow-blue-500/20"
+                    >
+                      Arrived &amp; Start Work
+                    </button>
                   )}
+
+                  {j.assignment_status === 'In Progress' && (
+                    <button
+                      onClick={() => {
+                        setActiveJobForUpdate(j);
+                        setNextStatus('Completed');
+                      }}
+                      className="py-2 px-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl flex items-center gap-1 cursor-pointer transition-colors shadow-md shadow-emerald-500/20"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Mark Work Completed</span>
+                    </button>
+                  )}
+
+                  {/* Upload photo proof button */}
+                  <button
+                    onClick={() => setUploadJob(j)}
+                    className="py-2 px-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl flex items-center gap-1.5 ml-auto cursor-pointer transition-colors"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Upload Proof Photo</span>
+                  </button>
                 </div>
               </div>
             ))
@@ -261,75 +238,84 @@ export default function TechnicianDashboard() {
 
       {/* Status Update Modal */}
       {activeJobForUpdate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Update Job Progress</h3>
-              <button onClick={() => setActiveJobForUpdate(null)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold">Update Job Stage</h3>
+              <button
+                onClick={() => setActiveJobForUpdate(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-slate-500">
-              Updating status of booking <span className="font-bold text-slate-800">{activeJobForUpdate.booking_code}</span> to <span className="font-bold text-blue-600">{nextStatus}</span>.
+            <p className="text-xs text-slate-400">
+              Advancing status to: <span className="text-cyan-400 font-bold">{nextStatus}</span>
             </p>
-
-            <form onSubmit={handleUpdateStatus} className="space-y-4">
+            <form onSubmit={handleUpdateStatus} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Technician Notes / Remarks</label>
+                <label className="block font-bold text-slate-300 mb-1">Technician Log / Work Notes (Optional)</label>
                 <textarea
                   rows={3}
-                  placeholder="e.g. Replaced 16A switch and verified voltage stability."
                   value={workNotes}
                   onChange={(e) => setWorkNotes(e.target.value)}
-                  className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                ></textarea>
+                  placeholder="e.g. Replaced burnt switch, checked circuit load, verified no leakage."
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                />
               </div>
-
               <button
                 type="submit"
                 disabled={updating}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-blue-500/25 cursor-pointer disabled:opacity-50"
               >
-                {updating ? 'Saving Status...' : `Confirm: Mark as ${nextStatus}`}
+                {updating ? 'Updating...' : `Confirm: ${nextStatus}`}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Proof Photo Upload Modal */}
+      {/* Upload Proof Modal */}
       {uploadJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Upload Before/After Proof Photo</h3>
-              <button onClick={() => setUploadJob(null)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold">Upload Proof of Service</h3>
+              <button
+                onClick={() => setUploadJob(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <form onSubmit={handleUploadProof} className="space-y-4">
+            <form onSubmit={handleUploadProof} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Photo Stage</label>
+                <label className="block font-bold text-slate-300 mb-1">Proof Stage</label>
                 <select
                   value={uploadType}
                   onChange={(e) => setUploadType(e.target.value)}
-                  className="w-full p-2 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
                 >
-                  <option value="after_work">After Completion (Proof of Work)</option>
-                  <option value="before_work">Before Starting (Initial Condition)</option>
+                  <option value="after_work">Job Completion (After Work)</option>
+                  <option value="before_work">Initial Inspection (Before Work)</option>
                 </select>
               </div>
-
-              <input
-                type="file"
-                required
-                accept="image/*"
-                onChange={(e) => setUploadFile(e.target.files[0])}
-                className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Photo File</label>
+                <input
+                  type="file"
+                  onChange={(e) => setUploadFile(e.target.files[0])}
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-slate-300 text-xs"
+                  accept="image/*"
+                  required
+                />
+              </div>
               <button
                 type="submit"
                 disabled={uploading}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-blue-500/25 cursor-pointer disabled:opacity-50"
               >
-                {uploading ? 'Uploading Photo...' : 'Upload & Attach Photo'}
+                {uploading ? 'Uploading...' : 'Save Service Proof'}
               </button>
             </form>
           </div>
@@ -338,4 +324,3 @@ export default function TechnicianDashboard() {
     </div>
   );
 }
-

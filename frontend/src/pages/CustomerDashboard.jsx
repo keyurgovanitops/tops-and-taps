@@ -3,7 +3,8 @@ import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import {
   Calendar, Clock, MapPin, CreditCard, FileText, Star, AlertTriangle,
-  RotateCcw, CheckCircle2, User, Plus, Trash2, ArrowRight, ShieldCheck, X
+  RotateCcw, CheckCircle2, User, Plus, Trash2, ArrowRight, ShieldCheck,
+  X, Sparkles, Phone, Wrench, Check
 } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import InvoiceModal from '../components/InvoiceModal';
@@ -76,7 +77,7 @@ export default function CustomerDashboard() {
         rating,
         comment: reviewComment
       });
-      alert('Thank you! Your review has been submitted.');
+      alert('Thank you! Your verified review has been submitted.');
       setReviewBooking(null);
       setReviewComment('');
       fetchData();
@@ -96,13 +97,13 @@ export default function CustomerDashboard() {
         subject: complaintSubject,
         description: complaintDesc
       });
-      alert('Complaint registered! Our support admin will review shortly.');
+      alert('Complaint ticket registered! Our support operations team will inspect and respond shortly.');
       setComplaintBooking(null);
       setComplaintSubject('');
       setComplaintDesc('');
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to file complaint');
+      alert(err.response?.data?.detail || 'Failed to submit ticket');
     } finally {
       setComplaintSubmitting(false);
     }
@@ -110,81 +111,107 @@ export default function CustomerDashboard() {
 
   const handleAddAddress = async (e) => {
     e.preventDefault();
+    if (!newLine.trim()) return;
     try {
       await client.post('/api/customers/addresses', {
         title: newTitle,
         address_line: newLine,
         city: newCity,
         pincode: newPin,
-        is_default: false
+        is_default: profile?.addresses?.length === 0
       });
       setShowAddAddr(false);
       setNewLine('');
       fetchData();
     } catch (err) {
-      alert('Failed to save address');
-    }
-  };
-
-  const handleDeleteAddress = async (addrId) => {
-    try {
-      await client.delete(`/api/customers/addresses/${addrId}`);
-      fetchData();
-    } catch (err) {
-      alert('Could not delete address');
+      alert('Failed to add address');
     }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Completed':
-        return <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold">Completed</span>;
+        return (
+          <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>Completed</span>
+          </span>
+        );
       case 'In Progress':
-        return <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-bold animate-pulse">In Progress</span>;
+        return (
+          <span className="bg-blue-500/10 border border-blue-500/30 text-cyan-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span>In Progress</span>
+          </span>
+        );
       case 'Provider Assigned':
-        return <span className="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-full text-xs font-bold">Tech Assigned</span>;
       case 'Confirmed':
-        return <span className="bg-teal-100 text-teal-800 px-2.5 py-1 rounded-full text-xs font-bold">Confirmed</span>;
+        return (
+          <span className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+            Confirmed &amp; Assigned
+          </span>
+        );
       case 'Cancelled':
-      case 'Rejected':
-        return <span className="bg-red-100 text-red-800 px-2.5 py-1 rounded-full text-xs font-bold">{status}</span>;
+        return (
+          <span className="bg-red-500/10 border border-red-500/30 text-red-400 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+            Cancelled
+          </span>
+        );
       case 'Pending':
       default:
-        return <span className="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">Pending Confirmation</span>;
+        return (
+          <span className="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span>Awaiting Dispatch</span>
+          </span>
+        );
     }
   };
 
+  // Compute stat metrics
+  const totalBookings = bookings.length;
+  const completedCount = bookings.filter((b) => b.status === 'Completed').length;
+  const activeCount = bookings.filter((b) => ['Pending', 'Confirmed', 'Provider Assigned', 'In Progress'].includes(b.status)).length;
+  const totalSpent = bookings
+    .filter((b) => b.payment?.status === 'Paid')
+    .reduce((sum, b) => sum + Number(b.final_amount || 0), 0);
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background radial glows */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/2 left-10 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Welcome Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-blue-500/20">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-cyan-500/25">
               {user?.full_name ? user.full_name[0].toUpperCase() : 'C'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">{user?.full_name}</h1>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <h1 className="text-2xl font-black text-white tracking-tight">{user?.full_name}</h1>
+                <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
                   Verified Customer
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">{user?.email} • {user?.phone || 'Phone not set'}</p>
+              <p className="text-xs text-slate-400 mt-1">{user?.email} • {user?.phone || 'Powai, Mumbai'}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setShowAddAddr(true)}
-              className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+              className="py-2.5 px-4 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all border border-white/10 flex items-center gap-1.5 cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              <span>Manage Addresses</span>
+              <Plus className="w-4 h-4 text-cyan-400" />
+              <span>Add Address</span>
             </button>
             <a
               href="/services"
-              className="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5"
+              className="py-2.5 px-5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/25 flex items-center gap-1.5 cursor-pointer"
             >
               <span>Book New Service</span>
               <ArrowRight className="w-4 h-4" />
@@ -192,85 +219,118 @@ export default function CustomerDashboard() {
           </div>
         </div>
 
-        {/* Content Tabs: My Bookings & Addresses */}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Active Appointments', value: activeCount, color: 'text-cyan-400', bg: 'from-blue-500/10 to-cyan-500/10' },
+            { label: 'Completed Services', value: completedCount, color: 'text-emerald-400', bg: 'from-emerald-500/10 to-teal-500/10' },
+            { label: 'Total Services Booked', value: totalBookings, color: 'text-white', bg: 'from-white/5 to-white/10' },
+            { label: 'Total Paid (Online)', value: `₹${totalSpent.toFixed(0)}`, color: 'text-cyan-300', bg: 'from-indigo-500/10 to-purple-500/10' },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className={`p-5 rounded-2xl border border-white/10 bg-gradient-to-br ${stat.bg} backdrop-blur-md`}
+            >
+              <span className="text-[11px] font-semibold text-slate-400 block">{stat.label}</span>
+              <span className={`text-2xl font-black mt-1 block ${stat.color}`}>{stat.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Content Tabs: My Bookings & Saved Addresses */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main: Bookings List */}
+          {/* Main Column: Bookings List */}
           <div data-tour="customer-bookings" className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">
-                My Appointments & Bookings ({bookings.length})
+              <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                <span>My Service Appointments</span>
+                <span className="text-xs font-mono bg-white/10 text-cyan-400 px-2 py-0.5 rounded-full">
+                  {bookings.length}
+                </span>
               </h2>
             </div>
 
             {loading ? (
-              <div className="text-center py-12 text-xs text-slate-400">Loading bookings...</div>
+              <div className="text-center py-16 text-xs text-slate-400 flex flex-col items-center gap-2">
+                <div className="w-7 h-7 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                <span>Syncing your appointment schedule...</span>
+              </div>
             ) : bookings.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center">
-                <p className="font-bold text-slate-700 text-sm">No bookings yet.</p>
-                <p className="text-xs text-slate-400 mt-1 mb-4">You haven't scheduled any home services yet.</p>
+              <div className="bg-slate-900/60 rounded-3xl p-10 border border-white/10 text-center space-y-3">
+                <p className="font-bold text-white text-base">No scheduled services yet.</p>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Browse our certified home services catalog to schedule an instant inspection, AC tune-up, or repair.
+                </p>
                 <a
                   href="/services"
-                  className="inline-flex items-center gap-1.5 py-2 px-4 bg-blue-600 text-white rounded-xl text-xs font-bold"
+                  className="inline-flex items-center gap-2 py-2.5 px-5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/25"
                 >
-                  Browse Services Catalog
+                  <span>Explore Services Catalog</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </a>
               </div>
             ) : (
               bookings.map((b) => (
                 <div
                   key={b.id}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
+                  className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-white/10 p-6 shadow-xl space-y-5 hover:border-white/20 transition-all"
                 >
                   {/* Card top */}
-                  <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-slate-500">{b.booking_code}</span>
+                        <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+                          {b.booking_code}
+                        </span>
                         {getStatusBadge(b.status)}
                       </div>
-                      <h3 className="font-bold text-slate-900 text-base mt-1">{b.service_name}</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">Partner: {b.provider_name}</p>
+                      <h3 className="font-black text-white text-lg mt-1.5">{b.service_name}</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Partner: {b.provider_name || 'TOPS & Taps Network'}</p>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-base font-black text-slate-900">₹{b.final_amount}</span>
-                      <div className="text-[11px] font-semibold mt-0.5">
+                      <span className="text-xl font-black text-white">₹{b.final_amount}</span>
+                      <div className="text-[11px] font-semibold mt-1">
                         {b.payment?.status === 'Paid' ? (
-                          <span className="text-emerald-600 flex items-center justify-end gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Paid Online
+                          <span className="text-emerald-400 flex items-center justify-end gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Paid Online</span>
                           </span>
                         ) : (
-                          <span className="text-amber-600">Payment Pending</span>
+                          <span className="text-amber-400 flex items-center justify-end gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>Payment Pending</span>
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {/* Schedule & Address info */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-600">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span>{b.booking_date} ({b.time_slot})</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                      <Calendar className="w-4 h-4 text-cyan-400 shrink-0" />
+                      <span>{b.booking_date} • {b.time_slot}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                      <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
                       <span className="truncate">{b.address}</span>
                     </div>
                   </div>
 
                   {/* Technician Info (if assigned) */}
                   {b.assigned_technician && (
-                    <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                          🔧
+                    <div className="p-4 bg-gradient-to-r from-blue-950/40 to-slate-900 border border-cyan-500/20 rounded-2xl text-xs flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center font-bold text-sm">
+                          <Wrench className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900">{b.assigned_technician.name}</p>
-                          <p className="text-[10px] text-slate-500">Field Technician • {b.assigned_technician.phone}</p>
+                          <p className="font-bold text-white text-xs">{b.assigned_technician.name}</p>
+                          <p className="text-[10px] text-slate-400">Assigned Technician • {b.assigned_technician.phone}</p>
                         </div>
                       </div>
-                      <span className="text-[11px] font-bold text-indigo-700 bg-white px-2 py-0.5 rounded shadow-xs">
+                      <span className="text-[11px] font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full">
                         {b.assigned_technician.status}
                       </span>
                     </div>
@@ -278,14 +338,14 @@ export default function CustomerDashboard() {
 
                   {/* Existing Review or Complaint */}
                   {b.review && (
-                    <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
-                      <div className="flex items-center gap-1 text-amber-500 font-bold">
+                    <div className="p-3.5 bg-white/5 border border-white/10 rounded-2xl text-xs space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-amber-400 font-bold">
                         <Star className="w-3.5 h-3.5 fill-amber-400" />
-                        <span>You rated {b.review.rating} / 5</span>
+                        <span>You rated: {b.review.rating} / 5</span>
                       </div>
-                      <p className="text-slate-600 italic">"{b.review.comment}"</p>
+                      <p className="text-slate-300 italic">"{b.review.comment}"</p>
                       {b.review.provider_reply && (
-                        <p className="text-[11px] text-blue-700 font-medium mt-1">
+                        <p className="text-[11px] text-cyan-300 font-medium">
                           ↳ Partner Reply: {b.review.provider_reply}
                         </p>
                       )}
@@ -293,44 +353,44 @@ export default function CustomerDashboard() {
                   )}
 
                   {b.complaint && (
-                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs space-y-1">
-                      <span className="font-bold text-red-700">Complaint Status: {b.complaint.status}</span>
-                      <p className="text-slate-700 font-medium">{b.complaint.subject}</p>
+                    <div className="p-3.5 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs space-y-1">
+                      <span className="font-bold text-red-400">Dispute Status: {b.complaint.status}</span>
+                      <p className="text-slate-200 font-medium">{b.complaint.subject}</p>
                       {b.complaint.resolution && (
-                        <p className="text-emerald-700 font-bold mt-1">Admin Resolution: {b.complaint.resolution}</p>
+                        <p className="text-emerald-400 font-bold mt-1">Admin Resolution: {b.complaint.resolution}</p>
                       )}
                     </div>
                   )}
 
-                  {/* Action buttons */}
-                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs font-bold">
+                  {/* Actions Toolbar */}
+                  <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs font-bold">
                     {/* Pay trigger */}
                     {b.payment?.status !== 'Paid' && b.status !== 'Cancelled' && (
                       <button
                         onClick={() => setSelectedBookingForPay(b)}
-                        className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5"
+                        className="py-2 px-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl flex items-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/20"
                       >
                         <CreditCard className="w-3.5 h-3.5" />
-                        <span>Pay ₹{b.final_amount}</span>
+                        <span>Pay Online ₹{b.final_amount}</span>
                       </button>
                     )}
 
                     {/* View Invoice */}
                     <button
                       onClick={() => setSelectedBookingForInvoice(b)}
-                      className="py-1.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center gap-1.5"
+                      className="py-2 px-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
                     >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Receipt & Tax Invoice</span>
+                      <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>GST Tax Invoice</span>
                     </button>
 
                     {/* Rate & Review (If completed) */}
                     {b.status === 'Completed' && !b.review && (
                       <button
                         onClick={() => { setReviewBooking(b); setRating(5); }}
-                        className="py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1.5"
+                        className="py-2 px-3.5 bg-amber-500/10 border border-amber-500/20 text-amber-300 hover:bg-amber-500/20 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
-                        <Star className="w-3.5 h-3.5" />
+                        <Star className="w-3.5 h-3.5 fill-amber-400" />
                         <span>Rate Service</span>
                       </button>
                     )}
@@ -339,10 +399,10 @@ export default function CustomerDashboard() {
                     {!b.complaint && (
                       <button
                         onClick={() => setComplaintBooking(b)}
-                        className="py-1.5 px-3 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-700 rounded-lg flex items-center gap-1.5 ml-auto"
+                        className="py-2 px-3.5 bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-400 rounded-xl flex items-center gap-1.5 ml-auto cursor-pointer transition-colors"
                       >
                         <AlertTriangle className="w-3.5 h-3.5" />
-                        <span>Dispute / Complaint</span>
+                        <span>Dispute</span>
                       </button>
                     )}
 
@@ -350,7 +410,7 @@ export default function CustomerDashboard() {
                     {['Pending', 'Confirmed'].includes(b.status) && (
                       <button
                         onClick={() => handleCancelBooking(b.id)}
-                        className="py-1.5 px-3 text-red-600 hover:bg-red-50 rounded-lg"
+                        className="py-2 px-3 text-red-400 hover:bg-red-500/10 rounded-xl cursor-pointer transition-colors"
                       >
                         Cancel
                       </button>
@@ -361,37 +421,39 @@ export default function CustomerDashboard() {
             )}
           </div>
 
-          {/* Sidebar: Saved Addresses */}
+          {/* Sidebar Column: Saved Addresses */}
           <div data-tour="customer-addresses" className="space-y-4">
-            <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+            <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-900 text-sm">Saved Addresses</h3>
+                <h3 className="font-bold text-white text-sm">Saved Addresses</h3>
                 <button
                   onClick={() => setShowAddAddr(!showAddAddr)}
-                  className="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1"
+                  className="text-cyan-400 hover:text-cyan-300 text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Add New</span>
+                  <span>{showAddAddr ? 'Close' : 'Add'}</span>
                 </button>
               </div>
 
               {showAddAddr && (
-                <form onSubmit={handleAddAddress} className="p-3 bg-slate-50 rounded-xl space-y-2 text-xs border border-slate-200">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Label (e.g. Home, Office, Mom's House)"
+                <form onSubmit={handleAddAddress} className="p-4 bg-slate-950 border border-cyan-500/30 rounded-2xl space-y-2.5 text-xs">
+                  <span className="font-bold text-cyan-300 block">Add New Location</span>
+                  <select
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                  />
+                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs"
+                  >
+                    <option>Home</option>
+                    <option>Office</option>
+                    <option>Other</option>
+                  </select>
                   <input
                     type="text"
-                    required
                     placeholder="Address Line / Flat / Society"
                     value={newLine}
                     onChange={(e) => setNewLine(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs"
+                    required
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -399,166 +461,199 @@ export default function CustomerDashboard() {
                       placeholder="City"
                       value={newCity}
                       onChange={(e) => setNewCity(e.target.value)}
-                      className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                      className="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs"
                     />
                     <input
                       type="text"
                       placeholder="Pincode"
                       value={newPin}
                       onChange={(e) => setNewPin(e.target.value)}
-                      className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                      className="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white text-xs font-mono"
                     />
                   </div>
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      type="submit"
-                      className="flex-1 py-1.5 bg-blue-600 text-white font-bold rounded-lg"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddAddr(false)}
-                      className="py-1.5 px-3 bg-slate-200 text-slate-700 font-bold rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors"
+                  >
+                    Save Address
+                  </button>
                 </form>
               )}
 
-              <div className="space-y-2">
-                {profile?.addresses?.map((a) => (
-                  <div key={a.id} className="p-3 rounded-xl border border-slate-200 text-xs flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-slate-800">{a.title}</span>
-                        {a.is_default && (
-                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-semibold">
+              {profile?.addresses?.length === 0 ? (
+                <p className="text-xs text-slate-400">No addresses saved yet.</p>
+              ) : (
+                <div className="space-y-2.5">
+                  {profile?.addresses?.map((addr) => (
+                    <div
+                      key={addr.id}
+                      className="p-3.5 bg-white/5 border border-white/5 rounded-2xl text-xs space-y-1 hover:border-white/10 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-white flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                          {addr.title}
+                        </span>
+                        {addr.is_default && (
+                          <span className="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-bold px-2 py-0.5 rounded text-[10px]">
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-500 mt-0.5 leading-snug">{a.address_line}, {a.city} - {a.pincode}</p>
+                      <p className="text-slate-400 text-[11px] leading-relaxed">{addr.address_line}</p>
+                      <p className="text-slate-500 text-[10px]">{addr.city} - {addr.pincode}</p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteAddress(a.id)}
-                      className="text-slate-400 hover:text-red-600 p-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Quick Coupons Box */}
-            <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-5 border border-indigo-100 text-xs space-y-2">
-              <span className="font-bold uppercase tracking-wider text-[10px] text-indigo-700 block">
-                Available Promo Coupons
-              </span>
-              <div className="bg-white p-2.5 rounded-xl border border-indigo-200/50 flex justify-between items-center">
-                <div>
-                  <span className="font-mono font-bold text-indigo-900">WELCOME50</span>
-                  <p className="text-[10px] text-slate-500">50% off on first booking</p>
-                </div>
-                <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded">Active</span>
+            {/* Platform Guarantee Card */}
+            <div className="p-5 rounded-3xl bg-gradient-to-br from-blue-950/40 to-slate-900 border border-white/10 space-y-2 text-xs">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold">
+                <ShieldCheck className="w-4 h-4" />
+                <span>TOPS &amp; Taps Protection</span>
               </div>
-              <div className="bg-white p-2.5 rounded-xl border border-indigo-200/50 flex justify-between items-center">
-                <div>
-                  <span className="font-mono font-bold text-indigo-900">TOPSTAPS100</span>
-                  <p className="text-[10px] text-slate-500">₹100 flat discount</p>
-                </div>
-                <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded">Active</span>
-              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                All bookings are covered by our 30-day rework warranty. Payments are safely escrowed until service completion.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Payment & Invoice Modals */}
-      <PaymentModal
-        isOpen={!!selectedBookingForPay}
-        onClose={() => setSelectedBookingForPay(null)}
-        booking={selectedBookingForPay}
-        onSuccess={() => fetchData()}
-      />
-      <InvoiceModal
-        isOpen={!!selectedBookingForInvoice}
-        onClose={() => setSelectedBookingForInvoice(null)}
-        booking={selectedBookingForInvoice}
-      />
+      {/* Razorpay Payment Modal */}
+      {selectedBookingForPay && (
+        <PaymentModal
+          isOpen={!!selectedBookingForPay}
+          onClose={() => setSelectedBookingForPay(null)}
+          booking={selectedBookingForPay}
+          onSuccess={() => {
+            setSelectedBookingForPay(null);
+            fetchData();
+          }}
+        />
+      )}
+
+      {/* Invoice Modal */}
+      {selectedBookingForInvoice && (
+        <InvoiceModal
+          isOpen={!!selectedBookingForInvoice}
+          onClose={() => setSelectedBookingForInvoice(null)}
+          booking={selectedBookingForInvoice}
+        />
+      )}
 
       {/* Review Modal */}
       {reviewBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Review Service Provider</h3>
-              <button onClick={() => setReviewBooking(null)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold">Rate Service Experience</h3>
+              <button
+                onClick={() => setReviewBooking(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-slate-500">How was your service with <span className="font-bold text-slate-800">{reviewBooking.provider_name}</span> for {reviewBooking.service_name}?</p>
-            <div className="flex justify-center gap-2 py-2">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <button key={s} type="button" onClick={() => setRating(s)} className="p-1 text-2xl">
-                  <Star className={`w-7 h-7 ${rating >= s ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
-                </button>
-              ))}
-            </div>
-            <textarea
-              rows={3}
-              placeholder="Write your experience..."
-              value={reviewComment}
-              onChange={(e) => setReviewComment(e.target.value)}
-              className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            ></textarea>
-            <button
-              onClick={handleSubmitReview}
-              disabled={reviewSubmitting}
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
-            >
-              {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
-            </button>
+            <p className="text-xs text-slate-400">
+              Booking: <span className="text-cyan-400 font-mono">{reviewBooking.booking_code}</span> • {reviewBooking.service_name}
+            </p>
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2">Overall Rating</label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setRating(s)}
+                      className="p-2 rounded-xl transition-all hover:scale-110 cursor-pointer"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          s <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-600'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-sm font-bold text-amber-400 ml-2">{rating} / 5 Stars</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Your Review Feedback</label>
+                <textarea
+                  rows={3}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Tell others how was the punctuality, hygiene, and work quality..."
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-400 focus:outline-none"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={reviewSubmitting}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-blue-500/25 cursor-pointer disabled:opacity-60"
+              >
+                {reviewSubmitting ? 'Submitting...' : 'Submit Verified Review'}
+              </button>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Complaint Modal */}
+      {/* Complaint / Dispute Modal */}
       {complaintBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">Raise Complaint / Dispute</h3>
-              <button onClick={() => setComplaintBooking(null)}><X className="w-4 h-4 text-slate-400" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-white/15 rounded-3xl shadow-2xl w-full max-w-md p-6 text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-red-400">File a Service Dispute</h3>
+              <button
+                onClick={() => setComplaintBooking(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <p className="text-xs text-slate-500">Report an issue regarding booking ref: <span className="font-bold text-slate-800">{complaintBooking.booking_code}</span></p>
-            <input
-              type="text"
-              required
-              placeholder="Subject (e.g. Technician delayed / Incomplete work)"
-              value={complaintSubject}
-              onChange={(e) => setComplaintSubject(e.target.value)}
-              className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <textarea
-              rows={3}
-              required
-              placeholder="Detailed description of the dispute..."
-              value={complaintDesc}
-              onChange={(e) => setComplaintDesc(e.target.value)}
-              className="w-full p-2.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            ></textarea>
-            <button
-              onClick={handleSubmitComplaint}
-              disabled={complaintSubmitting}
-              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs disabled:opacity-50"
-            >
-              {complaintSubmitting ? 'Filing Complaint...' : 'Submit to Admin Support'}
-            </button>
+            <p className="text-xs text-slate-400">
+              Booking: <span className="text-cyan-400 font-mono">{complaintBooking.booking_code}</span>
+            </p>
+            <form onSubmit={handleSubmitComplaint} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Dispute Subject</label>
+                <input
+                  type="text"
+                  value={complaintSubject}
+                  onChange={(e) => setComplaintSubject(e.target.value)}
+                  placeholder="e.g. Technician delayed, incomplete cleaning"
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-red-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Issue Details</label>
+                <textarea
+                  rows={3}
+                  value={complaintDesc}
+                  onChange={(e) => setComplaintDesc(e.target.value)}
+                  placeholder="Provide complete details for our administrative escalation team..."
+                  className="w-full px-3 py-2 bg-slate-950 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-red-500"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={complaintSubmitting}
+                className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-60"
+              >
+                {complaintSubmitting ? 'Registering...' : 'Register Complaint Ticket'}
+              </button>
+            </form>
           </div>
         </div>
       )}
     </div>
   );
 }
-
