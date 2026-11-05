@@ -5,7 +5,7 @@ import {
   Shield, DollarSign, Users, Briefcase, CheckCircle2, XCircle,
   AlertTriangle, Tag, Plus, Check, Search, Calendar, ChevronRight, X,
   Sparkles, Download, FileSpreadsheet, Lock, RefreshCw, UserCheck,
-  UserX, Clock, MapPin, CreditCard, Layers
+  UserX, Clock, MapPin, CreditCard, Layers, Camera
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -356,6 +356,12 @@ export default function AdminDashboard() {
                       <h3 className="font-black text-white text-sm">{b.service_name}</h3>
                       <p className="text-slate-300">Customer: <span className="font-bold text-white">{b.customer_name}</span> ({b.customer_phone})</p>
                       <p className="text-slate-400">Partner: {b.provider_name} • Slot: {b.booking_date} ({b.time_slot})</p>
+                      {b.images && b.images.length > 0 && (
+                        <div className="flex items-center gap-1.5 pt-1 text-cyan-400 font-mono text-[11px]">
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>{b.images.length} Service Proof Photos (Cloudinary)</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="text-right text-xs">

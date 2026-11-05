@@ -181,6 +181,42 @@ export default function TechnicianDashboard() {
                   </div>
                 )}
 
+                {/* Uploaded Service Proof Gallery (Cloudinary) */}
+                {j.images && j.images.length > 0 && (
+                  <div className="p-3.5 bg-slate-950 border border-white/10 rounded-2xl text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs">
+                        <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Uploaded Proof Photos ({j.images.length})</span>
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-mono font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>Cloudinary Storage</span>
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                      {j.images.map((img) => (
+                        <a
+                          key={img.id}
+                          href={img.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group relative rounded-xl overflow-hidden border border-white/10 bg-slate-900 aspect-video block hover:border-cyan-400 transition-colors shadow-sm"
+                        >
+                          <img
+                            src={img.url}
+                            alt={img.type}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-bold uppercase tracking-wider text-cyan-300 backdrop-blur-xs">
+                            {img.type.replace('_', ' ')}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Status Advancement & Image Upload buttons */}
                 <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs font-bold">
                   {/* Status transitions */}

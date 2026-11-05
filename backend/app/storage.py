@@ -46,11 +46,13 @@ def upload_media_file(file_bytes: bytes, filename: str, folder: str = "homeserve
         except Exception as err:
             logger.warning(f"Cloudinary upload failed ({err}). Falling back to local storage.")
 
-    # 2. Local File System Fallback
-    safe_filename = f"{folder}_{uuid.uuid4().hex[:8]}_{filename}"
+    # 2. Local File System Fallback with Global Absolute URL
+    safe_filename = f"{folder}_{uuid.uuid4().hex[:8]}_{filename.replace(' ', '_')}"
     local_path = os.path.join(UPLOAD_DIR, safe_filename)
     with open(local_path, "wb") as f:
         f.write(file_bytes)
 
-    return f"/uploads/{safe_filename}"
+    # Return full accessible URL for cross-origin frontend (Netlify -> Render API)
+    api_base = os.getenv("RENDER_EXTERNAL_URL", "https://topstaps-api.onrender.com").rstrip("/")
+    return f"{api_base}/uploads/{safe_filename}"
 

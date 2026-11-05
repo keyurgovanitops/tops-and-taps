@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Calendar, Clock, MapPin, CreditCard, FileText, Star, AlertTriangle,
   RotateCcw, CheckCircle2, User, Plus, Trash2, ArrowRight, ShieldCheck,
-  X, Sparkles, Phone, Wrench, Check
+  X, Sparkles, Phone, Wrench, Check, Camera, UploadCloud
 } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import InvoiceModal from '../components/InvoiceModal';
@@ -18,6 +18,10 @@ export default function CustomerDashboard() {
   // Modals
   const [selectedBookingForPay, setSelectedBookingForPay] = useState(null);
   const [selectedBookingForInvoice, setSelectedBookingForInvoice] = useState(null);
+  const [uploadPhotoBooking, setUploadPhotoBooking] = useState(null);
+  const [problemPhotoFile, setProblemPhotoFile] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Review Modal
   const [reviewBooking, setReviewBooking] = useState(null);
@@ -51,6 +55,28 @@ export default function CustomerDashboard() {
       console.warn('Dashboard fetch err:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUploadProblemPhoto = async (e) => {
+    e.preventDefault();
+    if (!problemPhotoFile || !uploadPhotoBooking) return;
+    setUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append('file', problemPhotoFile);
+    try {
+      await client.post(`/api/bookings/${uploadPhotoBooking.id}/upload-problem-image`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Photo uploaded successfully to Cloudinary storage!');
+      setUploadPhotoBooking(null);
+      setProblemPhotoFile(null);
+      fetchData();
+    } catch (err) {
+      console.warn(err);
+      alert('Failed to upload photo');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -362,6 +388,42 @@ export default function CustomerDashboard() {
                     </div>
                   )}
 
+                  {/* Verified Service & Inspection Photos (Cloudinary Storage) */}
+                  {b.images && b.images.length > 0 && (
+                    <div className="p-4 bg-slate-950/80 border border-white/10 rounded-2xl text-xs space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-200 flex items-center gap-2 text-xs">
+                          <Camera className="w-4 h-4 text-cyan-400" />
+                          <span>Service Inspection &amp; Work Proof Photos ({b.images.length})</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-400 font-mono font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" />
+                          <span>Cloudinary CDN</span>
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                        {b.images.map((img) => (
+                          <div
+                            key={img.id}
+                            onClick={() => setPreviewImage(img.url)}
+                            className="group relative rounded-xl overflow-hidden border border-white/10 bg-slate-900 aspect-video cursor-pointer hover:border-cyan-400 transition-all shadow-md"
+                          >
+                            <img
+                              src={img.url}
+                              alt={img.type}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                              <span className="px-1.5 py-0.5 rounded bg-black/60 text-[9px] font-bold uppercase tracking-wider text-cyan-300 backdrop-blur-xs">
+                                {img.type === 'after_work' ? '✓ After Service' : img.type === 'before_work' ? '• Before Service' : '• Problem Photo'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Actions Toolbar */}
                   <div className="flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs font-bold">
                     {/* Pay trigger */}
@@ -374,6 +436,16 @@ export default function CustomerDashboard() {
                         <span>Pay Online ₹{b.final_amount}</span>
                       </button>
                     )}
+
+                    {/* Attach Photo to Booking */}
+                    <button
+                      onClick={() => setUploadPhotoBooking(b)}
+                      className="py-2 px-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+                      title="Attach photo of the issue to Cloudinary"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>Attach Photo</span>
+                    </button>
 
                     {/* View Invoice */}
                     <button
@@ -651,6 +723,79 @@ export default function CustomerDashboard() {
                 {complaintSubmitting ? 'Registering...' : 'Register Complaint Ticket'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Problem Photo Modal (Cloudinary) */}
+      {uploadPhotoBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-900 rounded-3xl p-6 border border-white/15 max-w-md w-full shadow-2xl text-white space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-base font-bold">Attach Service Photo</h3>
+              </div>
+              <button
+                onClick={() => { setUploadPhotoBooking(null); setProblemPhotoFile(null); }}
+                className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-300">
+              Upload an image of the appliance, leakage, or wiring for booking{' '}
+              <span className="font-mono text-cyan-300 font-bold">{uploadPhotoBooking.booking_code}</span>. 
+              The photo will be stored on Cloudinary for technician diagnosis.
+            </p>
+            <form onSubmit={handleUploadProblemPhoto} className="space-y-4 text-xs">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setProblemPhotoFile(e.target.files[0])}
+                className="w-full text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-cyan-500/20 file:text-cyan-300 file:font-bold hover:file:bg-cyan-500/30 cursor-pointer"
+                required
+              />
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setUploadPhotoBooking(null); setProblemPhotoFile(null); }}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploadingPhoto || !problemPhotoFile}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 font-bold text-white disabled:opacity-50 cursor-pointer"
+                >
+                  {uploadingPhoto ? 'Uploading to Cloudinary...' : 'Upload Image'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Lightbox Modal */}
+      {previewImage && (
+        <div
+          onClick={() => setPreviewImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in cursor-pointer"
+        >
+          <div className="relative max-w-3xl w-full max-h-[85vh] flex flex-col items-center">
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-10 right-0 p-1.5 text-white/80 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={previewImage}
+              alt="Enlarged service proof"
+              className="max-h-[80vh] w-auto rounded-2xl border border-white/20 shadow-2xl object-contain"
+            />
+            <p className="text-xs text-slate-400 mt-3 font-mono">Cloudinary High-Res Media Asset</p>
           </div>
         </div>
       )}
