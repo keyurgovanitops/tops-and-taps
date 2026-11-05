@@ -187,17 +187,20 @@ export const TourProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [initialSnapshot, setInitialSnapshot] = useState(null);
 
-  // Auto-trigger guided tour for first-time visitors
+  // Auto-trigger guided tour for first-time visitors or when ?tour=1 is in URL
   useEffect(() => {
     const hasSeen = localStorage.getItem('topstaps_tour_seen');
-    if (!hasSeen && location.pathname === '/') {
+    const searchParams = new URLSearchParams(location.search);
+    const forceTour = searchParams.get('tour') === 'true' || searchParams.get('tour') === '1';
+
+    if ((!hasSeen || forceTour) && location.pathname === '/') {
       const timer = setTimeout(() => {
         startTour(TOURS.FULL_PLATFORM);
         localStorage.setItem('topstaps_tour_seen', 'true');
-      }, 1200);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [location.pathname, location.search]);
 
   const startTour = async (tourKey = TOURS.FULL_PLATFORM) => {
     const tour = TOUR_STEPS[tourKey];

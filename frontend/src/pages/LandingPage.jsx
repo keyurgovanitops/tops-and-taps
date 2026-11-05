@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useTour, TOURS } from '../context/TourContext';
 import {
   Search, Shield, Star, CheckCircle2, ArrowRight, Zap, Droplets,
   Wind, Sparkles, Paintbrush, Hammer, Tv, ShieldAlert, Award, Clock,
@@ -59,6 +60,7 @@ const customerTestimonials = [
 export default function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { startTour } = useTour();
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [authOpen, setAuthOpen] = useState(false);
@@ -105,8 +107,14 @@ export default function LandingPage() {
               <span className="text-xs font-black uppercase tracking-[0.2em] text-cyan-400">
                 TOPS &amp; Taps • Certified Craftsman Network
               </span>
-              <span className="text-slate-600">•</span>
-              <span className="text-xs font-semibold text-slate-300">Live in 50+ Cities</span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <button
+                type="button"
+                onClick={() => startTour(TOURS.FULL_PLATFORM)}
+                className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors cursor-pointer"
+              >
+                <span>✨ Start Interactive Tour ➔</span>
+              </button>
             </div>
 
             {/* Main Headline */}

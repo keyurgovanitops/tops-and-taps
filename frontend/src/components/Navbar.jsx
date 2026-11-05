@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTour, TOURS } from '../context/TourContext';
 import client from '../api/client';
 import {
   Wrench, Bell, User, LogOut, ShieldCheck, ChevronDown, Sparkles,
@@ -12,6 +13,7 @@ import AuthModal from './AuthModal';
 
 export default function Navbar() {
   const { user, role, logout, quickLogin } = useAuth();
+  const { startTour } = useTour();
   const navigate = useNavigate();
   const location = useLocation();
   const [authOpen, setAuthOpen] = useState(false);
@@ -136,7 +138,21 @@ export default function Navbar() {
           </div>
 
           {/* Right User Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Prominent Quick Tour Button in Top Navbar */}
+            <button
+              onClick={() => startTour(TOURS.FULL_PLATFORM)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-cyan-500/30 hover:from-blue-600/50 hover:to-cyan-500/50 border border-cyan-400/40 hover:border-cyan-400 text-cyan-300 hover:text-white text-xs font-bold transition-all shadow-sm shadow-cyan-500/15 cursor-pointer group"
+              title="Launch Interactive 9-Step Guided Platform Tour"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+              </span>
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition-transform" />
+              <span className="hidden sm:inline">Interactive Tour</span>
+              <span className="sm:hidden">Tour</span>
+            </button>
             {user ? (
               <>
                 {/* Active Role Badge */}

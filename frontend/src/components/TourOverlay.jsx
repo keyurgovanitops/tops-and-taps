@@ -137,12 +137,12 @@ export default function TourOverlay() {
 
   return (
     <>
-      {/* Floating Tour Guide Launcher Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Floating Tour Guide Launcher Button (Positioned Bottom-Left to avoid Netlify badge / widgets) */}
+      <div className="fixed bottom-6 left-6 z-50">
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="group flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900/95 hover:bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 text-white shadow-2xl shadow-cyan-500/20 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            className="group flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-slate-900/95 hover:bg-slate-900 border border-cyan-500/50 hover:border-cyan-400 text-white shadow-2xl shadow-cyan-500/25 backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-cyan-500/30"
             title="Interactive Platform Demo Tour"
           >
             <span className="flex h-2.5 w-2.5 relative">
@@ -150,12 +150,12 @@ export default function TourOverlay() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
             </span>
             <Compass className="w-4 h-4 text-cyan-400 group-hover:rotate-45 transition-transform" />
-            <span className="text-xs font-black tracking-wide">Interactive Guide</span>
+            <span className="text-xs font-black tracking-wide">Interactive Tour</span>
           </button>
 
           {/* Tour Selection Menu */}
           {menuOpen && (
-            <div className="absolute bottom-16 right-0 w-80 sm:w-96 bg-slate-900 border border-white/15 rounded-3xl shadow-2xl p-5 text-xs text-slate-300 animate-in fade-in zoom-in-95 duration-200 z-50">
+            <div className="absolute bottom-16 left-0 w-80 sm:w-96 bg-slate-900 border border-white/15 rounded-3xl shadow-2xl p-5 text-xs text-slate-300 animate-in fade-in zoom-in-95 duration-200 z-50">
               <div className="flex items-start justify-between pb-3 border-b border-white/10">
                 <div>
                   <h3 className="font-black text-white text-sm flex items-center gap-1.5">
