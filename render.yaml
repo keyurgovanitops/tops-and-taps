@@ -11,7 +11,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: RAZORPAY_KEY_ID
-        value: "rzp_test_us_TX9wuOHHTItsL8"
+        value: "rzp_test_TOPSTaps2026"
       - key: CLOUDINARY_CLOUD_NAME
         value: "dzwsbmb6"
       - key: CLOUDINARY_API_KEY

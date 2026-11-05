@@ -22,26 +22,26 @@ export default function PaymentModal({ isOpen, onClose, booking, onSuccess }) {
   const [error, setError] = useState('');
   const [orderData, setOrderData] = useState(null);
 
-  // Load Razorpay checkout script if available
+  // Load Razorpay checkout script only if backend confirms active live gateway
   useEffect(() => {
     if (!isOpen || !booking) return;
 
     // Prefetch official order details
     client
       .post('/api/payments/razorpay/create-order', { booking_id: booking.id })
-      .then((res) => setOrderData(res.data))
+      .then((res) => {
+        setOrderData(res.data);
+        if (res.data?.is_live_gateway && !document.getElementById('razorpay-checkout-script')) {
+          const script = document.createElement('script');
+          script.id = 'razorpay-checkout-script';
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          script.async = true;
+          document.body.appendChild(script);
+        }
+      })
       .catch((err) => {
         console.warn('Razorpay order init fallback to standard process:', err);
       });
-
-    // Check if script already loaded
-    if (!document.getElementById('razorpay-checkout-script')) {
-      const script = document.createElement('script');
-      script.id = 'razorpay-checkout-script';
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.async = true;
-      document.body.appendChild(script);
-    }
   }, [isOpen, booking]);
 
   if (!isOpen || !booking) return null;
@@ -53,51 +53,63 @@ export default function PaymentModal({ isOpen, onClose, booking, onSuccess }) {
     setError('');
 
     try {
-      // 1. Try real Razorpay Checkout Popup if client provided real test key
-      const isCustomKey =
-        orderData?.key_id && !orderData.key_id.startsWith('rzp_test_TOPSTaps');
+      // 1. Try real Razorpay Checkout Popup ONLY if backend successfully generated a live order on Razorpay
+      const isLiveGateway =
+        orderData?.is_live_gateway === true &&
+        orderData?.key_id &&
+        !orderData.key_id.startsWith('rzp_test_TOPSTaps') &&
+        !orderData.key_id.startsWith('rzp_test_us_');
 
-      if (window.Razorpay && isCustomKey && orderData) {
-        const options = {
-          key: orderData.key_id,
-          amount: orderData.amount,
-          currency: orderData.currency || 'INR',
-          name: 'TOPS & Taps',
-          description: `Booking #${booking.booking_code} - ${booking.service_name}`,
-          order_id: orderData.order_id,
-          prefill: orderData.prefill || {},
-          theme: { color: '#0EA5E9' },
-          handler: async function (response) {
-            try {
-              const verifyRes = await client.post(
-                '/api/payments/razorpay/verify-payment',
-                {
-                  booking_id: booking.id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  payment_method: 'Razorpay Gateway',
-                }
-              );
-              if (onSuccess) onSuccess(verifyRes.data);
-              onClose();
-            } catch (err) {
-              setError(
-                err.response?.data?.detail || 'Signature verification failed'
-              );
-              setProcessing(false);
-            }
-          },
-          modal: {
-            ondismiss: function () {
-              setProcessing(false);
+      if (window.Razorpay && isLiveGateway && orderData) {
+        try {
+          const options = {
+            key: orderData.key_id,
+            amount: orderData.amount,
+            currency: orderData.currency || 'INR',
+            name: 'TOPS & Taps',
+            description: `Booking #${booking.booking_code} - ${booking.service_name}`,
+            order_id: orderData.order_id,
+            prefill: orderData.prefill || {},
+            theme: { color: '#0EA5E9' },
+            handler: async function (response) {
+              try {
+                const verifyRes = await client.post(
+                  '/api/payments/razorpay/verify-payment',
+                  {
+                    booking_id: booking.id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    payment_method: 'Razorpay Gateway',
+                  }
+                );
+                if (onSuccess) onSuccess(verifyRes.data);
+                onClose();
+              } catch (err) {
+                setError(
+                  err.response?.data?.detail || 'Signature verification failed'
+                );
+                setProcessing(false);
+              }
             },
-          },
-        };
+            modal: {
+              ondismiss: function () {
+                setProcessing(false);
+              },
+            },
+          };
 
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-        return;
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (resp) {
+            console.warn('Native checkout payment failed:', resp.error);
+            setError(resp.error?.description || 'Payment failed');
+            setProcessing(false);
+          });
+          rzp.open();
+          return;
+        } catch (nativeErr) {
+          console.warn('Could not launch native Razorpay modal, falling back to sandbox:', nativeErr);
+        }
       }
 
       // 2. High-Fidelity Test Mode Verification via Backend

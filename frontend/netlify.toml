@@ -4,7 +4,7 @@
 
 [build.environment]
   VITE_API_URL = "https://topstaps-api.onrender.com"
-  VITE_RAZORPAY_KEY_ID = "rzp_test_us_TX9wuOHHTItsL8"
+  VITE_RAZORPAY_KEY_ID = "rzp_test_TOPSTaps2026"
 
 [[redirects]]
   from = "/*"

@@ -98,16 +98,20 @@ def create_razorpay_order(
     }
 
     razorpay_order_id = None
+    is_live_order = False
 
     if (
         razorpay_client
         and RAZORPAY_KEY_ID
         and RAZORPAY_KEY_SECRET
         and not RAZORPAY_KEY_ID.startswith("rzp_test_TOPSTaps")
+        and not RAZORPAY_KEY_ID.startswith("rzp_test_us_")
     ):
         try:
             rzp_order = razorpay_client.order.create(data=order_payload)
-            razorpay_order_id = rzp_order.get("id")
+            if rzp_order and rzp_order.get("id"):
+                razorpay_order_id = rzp_order.get("id")
+                is_live_order = True
         except Exception as err:
             logger.warning(f"Native Razorpay API call failed ({err}), falling back to test sandbox order.")
 
@@ -123,6 +127,7 @@ def create_razorpay_order(
         "amount_inr": booking.final_amount,
         "currency": "INR",
         "key_id": RAZORPAY_KEY_ID,
+        "is_live_gateway": is_live_order,
         "booking_code": booking.booking_code,
         "service_name": booking.service.name if booking.service else "Home Service",
         "prefill": {
@@ -152,6 +157,7 @@ def verify_razorpay_payment(
         and RAZORPAY_KEY_ID
         and RAZORPAY_KEY_SECRET
         and not RAZORPAY_KEY_ID.startswith("rzp_test_TOPSTaps")
+        and not RAZORPAY_KEY_ID.startswith("rzp_test_us_")
     ):
         try:
             razorpay_client.utility.verify_payment_signature(
