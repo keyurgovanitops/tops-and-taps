@@ -72,22 +72,34 @@ async function testLiveUIPayment() {
     await payBtn.click();
     await page.waitForTimeout(1000);
 
-    // Verify PaymentModal opened
-    const modalTitle = await page.$('text=Authorize & Pay');
-    console.log('Payment modal Authorize & Pay button present:', !!modalTitle);
+    // Verify Razorpay Standard Checkout Modal opened
+    const rzpHeader = await page.$('text=Razorpay');
+    console.log('Razorpay modal brand present:', !!rzpHeader);
 
-    // Check for Razorpay Sandbox badge
-    const sandboxBadge = await page.$('text=Razorpay Sandbox Active');
-    console.log('Sandbox badge present:', !!sandboxBadge);
+    const payButton = await page.$('button:has-text("Pay ₹")');
+    console.log('Payment modal Pay button present:', !!payButton);
 
-    // Click Authorize & Pay
-    console.log('Clicking Authorize & Pay in modal...');
-    await modalTitle.click();
+    // Click Pay via Razorpay to trigger OTP / Bank simulator
+    console.log('Clicking Pay via Razorpay button in modal...');
+    await payButton.click();
 
-    // Wait for payment processing
+    // Wait for OTP Simulation Screen
+    await page.waitForTimeout(1000);
+    const otpScreen = await page.$('text=Razorpay Test Bank Simulator');
+    console.log('Razorpay Test Bank Simulator screen present:', !!otpScreen);
+
+    // Click Simulate Success
+    const simulateSuccessBtn = await page.$('button:has-text("Simulate Success")');
+    console.log('Simulate Success button present:', !!simulateSuccessBtn);
+    if (simulateSuccessBtn) {
+      await simulateSuccessBtn.click();
+      console.log('Simulating successful authorization...');
+    }
+
+    // Wait for payment settlement and invoice generation
     await page.waitForTimeout(3000);
 
-    // Verify modal is closed and invoice button or Paid badge appears
+    // Verify modal closes and Paid badge appears
     const paidBadge = await page.$('text=Paid');
     console.log('Paid badge visible on page:', !!paidBadge);
   }
